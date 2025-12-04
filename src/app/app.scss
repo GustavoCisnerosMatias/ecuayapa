@@ -1,0 +1,21 @@
+/* Reset estilos globales del navegador */
+:root {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+}

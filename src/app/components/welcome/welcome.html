@@ -1,0 +1,209 @@
+<div class="wrap">
+
+  <!-- Fondo animado -->
+  <div class="bg-animated"></div>
+
+  <!-- Overlay de carga -->
+  <div class="loading-overlay" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Obteniendo tu ubicación...</p>
+  </div>
+
+  <!-- Panel principal -->
+  <div class="panel active">
+
+    <div class="panel-header">
+      <div class="panel-title">
+        <h2>Selecciona tu ubicación</h2>
+        <div class="muted">Puedes mover el mapa o elegir un punto.</div>
+      </div>
+      <div class="status" [ngClass]="userDenied ? 'no' : 'ok'">
+        {{ userDenied ? 'Permiso no concedido' : 'Permiso activo' }}
+      </div>
+    </div>
+
+    <div class="map-and-info">
+      <div #mapContainer class="map"></div>
+      <!-- Botón cambiar ubicación (posicionado sobre el mapa con CSS) -->
+      <!-- Siempre visible una vez se establece la ubicación inicial -->
+      <button class="btn-change-location-overlay" (click)="activateChangeLocationMode()" 
+              [class.active]="changeLocationMode"
+              *ngIf="pointSelected"
+              title="Hacer clic en el mapa para cambiar tu ubicación">
+        <span class="change-location-text">Cambiar ubicación</span>
+        <div class="icon-button">
+          <i class="fa-solid fa-map-pin"></i>
+        </div>
+      </button>
+
+      <div class="info">
+        <div class="glass">
+          <!-- ESTADO DEL PERMISO -->
+          <!-- Solo mostrar si permiso fue denegado -->
+          <div class="permission-status" *ngIf="userDenied && permissionRequested">
+            <div class="status-denied">
+              ✗ Permiso denegado
+              <p>Por favor, selecciona tu ubicación haciendo clic en el mapa.</p>
+            </div>
+          </div>
+
+          <!-- Indicador modo cambiar ubicación -->
+          <div class="permission-status" *ngIf="(userDenied || changeLocationMode) && !pointSelected" class="status-info">
+            <p><strong>Modo activo:</strong> Haz clic en el mapa para establecer tu ubicación.</p>
+          </div>
+
+          <p class="muted">La ubicación es necesaria para mostrar emprendimientos cercanos.</p>
+          
+          <!-- Botón Reintentar permiso (solo si fue denegado) -->
+          <button class="btn primary" (click)="getCurrentLocation()" *ngIf="userDenied && permissionRequested">
+            Reintentar permiso
+          </button>
+
+          <!-- Control de rango del círculo - SIEMPRE VISIBLE -->
+          <div class="range-control">
+            <label>Rango de búsqueda: <strong>{{ circleRadius }} km</strong></label>
+            <input type="range" min="3" max="15" [(ngModel)]="circleRadius" (change)="updateCircleRadius()" class="slider">
+            <div class="range-labels">
+              <span>3 km</span>
+              <span>10 km</span>
+            </div>
+          </div>
+
+          <!-- Lista de ubicaciones cercanas -->
+          <div class="nearby-list">
+            <div class="nearby-header">
+              <h4>Emprendimientos cercanos</h4>
+            </div>
+
+            <!-- Buscador y filtros -->
+            <div class="search-filter-bar">
+              <div class="search-input-wrapper">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input 
+                  type="text" 
+                  [(ngModel)]="searchQuery" 
+                  (input)="filterLocations()"
+                  placeholder="Buscar por nombre o descripción..."
+                  class="search-input">
+              </div>
+              <button class="btn-filters" (click)="toggleFilterModal()" title="Agregar filtros">
+                <i class="fa-solid fa-sliders"></i>
+              </button>
+            </div>
+
+            <!-- Lista filtrada de emprendimientos -->
+            <div class="location-item" *ngFor="let loc of filteredLocations" (click)="openLocationModal(loc)">
+              <div class="location-marker">
+                <i class="fa-solid fa-store"></i>
+              </div>
+              <div class="location-info">
+                <p class="location-name">{{ loc.name }}</p>
+                <p class="location-type">{{ loc.type }}</p>
+                <p class="location-distance">📍 {{ loc.distance }}</p>
+                <p class="location-desc">{{ loc.description | slice:0:60 }}...</p>
+              </div>
+            </div>
+
+            <!-- Mensaje si no hay resultados -->
+            <div class="no-results" *ngIf="filteredLocations.length === 0">
+              <p>No hay emprendimientos que coincidan con tu búsqueda</p>
+            </div>
+          </div>
+
+          <div class="final-box" *ngIf="confirmed">
+            🎉 Ubicación confirmada:<br>
+            <strong>{{ lat }}, {{ lng }}</strong><br>
+            <small>Rango: {{ circleRadius }} km</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE DETALLES -->
+  <div class="modal-overlay" *ngIf="showModal" (click)="closeLocationModal()">
+    <div class="modal-content" *ngIf="selectedLocation" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>{{ selectedLocation.name }}</h3>
+        <button class="btn-close" (click)="closeLocationModal()">✕</button>
+      </div>
+      
+      <div class="modal-body">
+        <div class="modal-section">
+          <label>Tipo:</label>
+          <p>{{ selectedLocation.category_name }}</p>
+        </div>
+        
+        <div class="modal-section">
+          <label>Descripción:</label>
+          <p>{{ selectedLocation.description }}</p>
+        </div>
+        
+        <div class="modal-section">
+          <label>Ubicación:</label>
+          <p>Lat: {{ selectedLocation.lat }}, Lng: {{ selectedLocation.lng }}</p>
+        </div>
+        
+        <div class="modal-section">
+          <label>Distancia:</label>
+          <p>{{ selectedLocation.distance }}</p>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button class="btn primary" (click)="closeLocationModal()">Cerrar</button>
+        <button class="btn secondary" (click)="viewLocationOnMap(selectedLocation)">Ver en mapa</button>
+      </div>
+    </div>
+  </div>
+ <div class="modal-overlay" *ngIf="showFilterModal" (click)="toggleFilterModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Filtros</h3>
+        <button class="btn-close" (click)="toggleFilterModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <!-- Filtro por Categoría -->
+        <div class="modal-section">
+          <label><strong>Categorías</strong></label>
+          <div class="filter-options">
+            <div class="filter-option" *ngFor="let category of availableCategories">
+              <input 
+                type="checkbox" 
+                [id]="'cat-' + category"
+                [checked]="selectedCategories.has(category)"
+                (change)="toggleCategory(category)">
+              <label [for]="'cat-' + category">{{ category }}</label>
+            </div>
+          </div>
+        </div>
+        <!-- Filtro por Rango de Precio -->
+        <div class="modal-section">
+          <label><strong>Rango de Precio: ${{ priceRange.min }} - ${{ priceRange.max }}</strong></label>
+          <div class="price-range-inputs">
+            <input 
+              type="number" 
+              [(ngModel)]="priceRange.min" 
+              (change)="filterLocations()"
+              placeholder="Mín"
+              class="price-input">
+            <span class="price-separator">-</span>
+            <input 
+              type="number" 
+              [(ngModel)]="priceRange.max" 
+              (change)="filterLocations()"
+              placeholder="Máx"
+              class="price-input">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn secondary" (click)="resetFilters()">Limpiar filtros</button>
+        <button class="btn primary" (click)="toggleFilterModal()">Aplicar</button>
+      </div>
+    </div>
+  </div>
+  <div class="footer">
+    © ECUAYAPA - MINISTERIO DE DESARROLLO HUMANO 
+  </div>
+</div>
