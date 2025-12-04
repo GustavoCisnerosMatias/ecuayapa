@@ -32,7 +32,7 @@
               title="Hacer clic en el mapa para cambiar tu ubicación">
         <span class="change-location-text">Cambiar ubicación</span>
         <div class="icon-button">
-          <i class="fa-solid fa-map-pin"></i>
+          <i class="fa-solid fa-map-pin "></i>
         </div>
       </button>
 
@@ -87,17 +87,17 @@
                   class="search-input">
               </div>
               <button class="btn-filters" (click)="toggleFilterModal()" title="Agregar filtros">
-                <i class="fa-solid fa-sliders"></i>
+                <i class="fa-solid fa-sliders "></i>
               </button>
             </div>
 
             <!-- Lista filtrada de emprendimientos -->
             <div class="location-item" *ngFor="let loc of filteredLocations" (click)="openLocationModal(loc)">
               <div class="location-marker">
-                <i class="fa-solid fa-store"></i>
+                <i class="fa-solid fa-store fa-5x"></i>
               </div>
               <div class="location-info">
-                <p class="location-name">{{ loc.name }}</p>
+                <p class="location-name">{{ loc.title }}</p>
                 <p class="location-type">{{ loc.type }}</p>
                 <p class="location-distance">📍 {{ loc.distance }}</p>
                 <p class="location-desc">{{ loc.description | slice:0:60 }}...</p>
@@ -110,11 +110,6 @@
             </div>
           </div>
 
-          <div class="final-box" *ngIf="confirmed">
-            🎉 Ubicación confirmada:<br>
-            <strong>{{ lat }}, {{ lng }}</strong><br>
-            <small>Rango: {{ circleRadius }} km</small>
-          </div>
         </div>
       </div>
     </div>
@@ -139,10 +134,7 @@
           <p>{{ selectedLocation.description }}</p>
         </div>
         
-        <div class="modal-section">
-          <label>Ubicación:</label>
-          <p>Lat: {{ selectedLocation.lat }}, Lng: {{ selectedLocation.lng }}</p>
-        </div>
+
         
         <div class="modal-section">
           <label>Distancia:</label>

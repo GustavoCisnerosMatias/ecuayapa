@@ -47,7 +47,7 @@
 
   /* Panel with map */
   .panel{
-    position:absolute; inset:14% 6% 6% 6%; z-index:2; opacity:0; pointer-events:none;
+    position:absolute; inset:6% 6% 6% 6%; z-index:2; opacity:0; pointer-events:none;
     transition: all .6s cubic-bezier(.2,.9,.2,1);
   }
   .panel.active{ opacity:1; pointer-events:auto; transform:translateY(0); }

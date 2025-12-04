@@ -325,7 +325,7 @@ export class Welcome implements OnInit {
     // Actualizar marcador principal
     if (this.marker && this.lat && this.lng) {
       const newIcon = L.divIcon({
-        html: '<i class="fa-solid fa-map-pin"></i>',
+        html: '<i class="fa-solid fa-map-pin fa-2x"></i>',
         iconSize: [newSize, newSize],
         className: 'custom-marker'
       });
@@ -335,7 +335,7 @@ export class Welcome implements OnInit {
     // Actualizar marcadores cercanos
     this.nearbyMarkers.forEach(marker => {
       const newIcon = L.divIcon({
-        html: '<i class="fa fa-shopping-basket"></i>',
+        html: '<i class="fa fa-shopping-basket fa-2x"></i>',
         iconSize: [newSize, newSize],
         className: 'nearby-marker'
       });
