@@ -21,4 +21,8 @@ export class HeaderComponent {
   setActive(route: string) {
     this.activeRoute = route;
   }
+
+  scrollToTop() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 }

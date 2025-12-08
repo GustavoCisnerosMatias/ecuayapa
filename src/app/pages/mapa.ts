@@ -36,81 +36,81 @@ export class MapaComponent implements OnInit {
   allProducts: Product[] = [
     {
       id: 1,
-      title: 'Toyota Corolla 2022',
-      brand: 'Toyota',
-      price: 25000,
-      year: 2022,
-      mileage: 15000,
+      title: 'Camiseta Premium Azul',
+      brand: 'Fashion Store',
+      price: 25,
+      year: 2024,
+      mileage: 0,
       city: 'Quito',
       location: 'Centro-Norte',
       lat: -0.2193,
       lng: -78.5125,
-      image: 'https://via.placeholder.com/200x150?text=Toyota',
+      image: 'https://via.placeholder.com/200x150?text=Camiseta',
     },
     {
       id: 2,
-      title: 'Chevrolet Onix 2023',
-      brand: 'Chevrolet',
-      price: 22000,
-      year: 2023,
-      mileage: 8000,
+      title: 'Zapatillas Deportivas',
+      brand: 'SportGear',
+      price: 85,
+      year: 2024,
+      mileage: 0,
       city: 'Guayaquil',
       location: 'Costa',
       lat: -2.1692,
       lng: -79.9218,
-      image: 'https://via.placeholder.com/200x150?text=Chevrolet',
+      image: 'https://via.placeholder.com/200x150?text=Zapatillas',
     },
     {
       id: 3,
-      title: 'Hyundai i10 2021',
-      brand: 'Hyundai',
-      price: 18000,
-      year: 2021,
-      mileage: 25000,
+      title: 'Medias Algodón Pack 6',
+      brand: 'ComfortWear',
+      price: 12,
+      year: 2024,
+      mileage: 0,
       city: 'Cuenca',
       location: 'Sur',
       lat: -2.9036,
       lng: -79.0087,
-      image: 'https://via.placeholder.com/200x150?text=Hyundai',
+      image: 'https://via.placeholder.com/200x150?text=Medias',
     },
     {
       id: 4,
-      title: 'Kia Picanto 2023',
-      brand: 'Kia',
-      price: 20000,
-      year: 2023,
-      mileage: 5000,
+      title: 'Pantalón Jean Premium',
+      brand: 'DenimCo',
+      price: 65,
+      year: 2024,
+      mileage: 0,
       city: 'Quito',
       location: 'Sur',
       lat: -0.3522,
       lng: -78.5249,
-      image: 'https://via.placeholder.com/200x150?text=Kia',
+      image: 'https://via.placeholder.com/200x150?text=Pantalon',
     },
     {
       id: 5,
-      title: 'Renault Kwid 2022',
-      brand: 'Renault',
-      price: 19000,
-      year: 2022,
-      mileage: 12000,
+      title: 'Chocolate Artesanal 100g',
+      brand: 'Dulces Ecuador',
+      price: 8,
+      year: 2024,
+      mileage: 0,
       city: 'Ambato',
       location: 'Sierra',
       lat: -1.2343,
       lng: -78.6344,
-      image: 'https://via.placeholder.com/200x150?text=Renault',
+      image: 'https://via.placeholder.com/200x150?text=Chocolate',
     },
     {
       id: 6,
-      title: 'Ford F-150 2023',
-      brand: 'Ford',
-      price: 35000,
-      year: 2023,
-      mileage: 3000,
+      title: 'Café Gourmet Molido',
+      brand: 'CafePuro',
+      price: 18,
+      year: 2024,
+      mileage: 0,
       city: 'Guayaquil',
       location: 'Norte',
       lat: -2.0988,
       lng: -79.8581,
-      image: 'https://via.placeholder.com/200x150?text=Ford',
+      image: 'https://via.placeholder.com/200x150?text=Cafe',
     },
   ];
 
@@ -177,6 +177,11 @@ export class MapaComponent implements OnInit {
   centerOnProduct(product: Product) {
     this.map.setView([product.lat, product.lng], 13);
     this.markers[product.id]?.openPopup();
+    // Scroll al mapa
+    const mapElement = document.getElementById('map');
+    if (mapElement) {
+      mapElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   }
 
   contactProduct(product: Product) {
@@ -209,5 +214,10 @@ export class MapaComponent implements OnInit {
     this.minYear = 2010;
     this.searchRadius = 50;
     this.applyFilters();
+  }
+
+  onImageError(event: Event) {
+    const img = event.target as HTMLImageElement;
+    img.style.display = 'none';
   }
 }

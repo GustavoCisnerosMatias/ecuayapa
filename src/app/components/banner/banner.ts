@@ -11,7 +11,14 @@ import { CommonModule } from '@angular/common';
 export class BannerComponent {
   bannerText = {
     title: 'BIENVENIDO A ECUAYAPA',
-    subtitle: 'Compra, vende y encuentra vehículos en todo el Ecuador',
+    subtitle: 'Compra, vende y encuentra productos en todo el Ecuador',
     cta: 'Explorar Ahora',
   };
+
+  scrollToProducts() {
+    const productsSection = document.querySelector('.products-section');
+    if (productsSection) {
+      productsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
 }

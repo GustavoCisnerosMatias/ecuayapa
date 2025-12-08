@@ -22,7 +22,17 @@
       </div>
 
       <div *ngFor="let product of filteredProducts" class="product-card">
-        <img [src]="product.image" [alt]="product.title" class="product-image" />
+        <div class="product-image-wrapper">
+          <img
+            [src]="product.image"
+            [alt]="product.title"
+            class="product-image"
+            (error)="onImageError($event)"
+          />
+          <div class="image-fallback">
+            <i class="fas fa-shopping-cart"></i>
+          </div>
+        </div>
 
         <div class="product-info">
           <h3>{{ product.title }}</h3>
