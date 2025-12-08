@@ -152,7 +152,9 @@ export class MapaComponent implements OnInit {
   private createMarkerPopup(vehicle: Vehicle): string {
     return `
       <div style="width: 200px; text-align: center;">
-        <img src="${vehicle.image}" style="width: 100%; height: 100px; object-fit: cover; border-radius: 4px; margin-bottom: 8px;">
+        <img src="${
+          vehicle.image
+        }" style="width: 100%; height: 100px; object-fit: cover; border-radius: 4px; margin-bottom: 8px;">
         <b style="color: #2d2d96;">${vehicle.title}</b><br>
         <span style="color: #666;">$${vehicle.price.toLocaleString()}</span><br>
         <small style="color: #888;">${vehicle.mileage.toLocaleString()} km | ${vehicle.city}</small>
@@ -179,7 +181,7 @@ export class MapaComponent implements OnInit {
   contactVehicle(vehicle: Vehicle) {
     // In a real app, this would open a contact form or modal
     alert(
-      `¡Contactar sobre: ${vehicle.title}\nTeléfono: +593 (2) 3814-000\nEmail: info@desarrollo.gob.ec`,
+      `¡Contactar sobre: ${vehicle.title}\nTeléfono: +593 (2) 3814-000\nEmail: info@desarrollo.gob.ec`
     );
   }
 

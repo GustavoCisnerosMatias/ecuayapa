@@ -64,14 +64,7 @@
 
         <div class="filter-group">
           <label for="radius">Radio de Búsqueda: {{ searchRadius }} km</label>
-          <input
-            [(ngModel)]="searchRadius"
-            type="range"
-            id="radius"
-            min="10"
-            max="500"
-            step="10"
-          />
+          <input [(ngModel)]="searchRadius" type="range" id="radius" min="10" max="500" step="10" />
         </div>
       </div>
 
