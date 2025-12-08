@@ -1,0 +1,392 @@
+.product-detail-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+
+  .product-detail-header {
+    margin-bottom: 30px;
+
+    .btn-back {
+      background: none;
+      border: none;
+      color: #2d2d96;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: color 0.3s ease;
+
+      &:hover {
+        color: #fd0118;
+      }
+    }
+  }
+
+  .product-detail-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    margin-bottom: 50px;
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+  }
+
+  .product-detail-image {
+    img {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+  }
+
+  .product-detail-info {
+    .product-title {
+      font-size: 28px;
+      font-weight: 700;
+      color: #2d2d96;
+      margin-bottom: 10px;
+    }
+
+    .product-price {
+      font-size: 24px;
+      font-weight: 600;
+      color: #fd0118;
+      margin-bottom: 15px;
+    }
+
+    .product-location {
+      color: #666;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .product-description {
+      margin-bottom: 30px;
+
+      h3 {
+        font-size: 16px;
+        font-weight: 600;
+        color: #2d2d96;
+        margin-bottom: 10px;
+      }
+
+      p {
+        color: #555;
+        line-height: 1.6;
+        font-size: 14px;
+      }
+    }
+
+    .entrepreneur-section {
+      margin-bottom: 30px;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 8px;
+
+      h3 {
+        font-size: 16px;
+        font-weight: 600;
+        color: #2d2d96;
+        margin-bottom: 15px;
+      }
+
+      .entrepreneur-info {
+        h4 {
+          font-size: 14px;
+          font-weight: 600;
+          color: #333;
+          margin-bottom: 10px;
+        }
+
+        .entrepreneur-story {
+          color: #666;
+          font-size: 13px;
+          line-height: 1.5;
+          margin-bottom: 15px;
+        }
+
+        .entrepreneur-contact {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          color: #2d2d96;
+          font-weight: 500;
+
+          i {
+            color: #fd0118;
+          }
+        }
+      }
+    }
+
+    .action-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+
+      @media (max-width: 480px) {
+        grid-template-columns: 1fr;
+      }
+
+      button {
+        padding: 12px 20px;
+        border: none;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+
+        i {
+          font-size: 16px;
+        }
+      }
+
+      .btn-contact {
+        background: #25d366;
+        color: white;
+
+        &:hover {
+          background: #1da851;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+        }
+      }
+
+      .btn-share {
+        background: #2d2d96;
+        color: white;
+
+        &:hover {
+          background: #1a1a5c;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(45, 45, 150, 0.3);
+        }
+      }
+    }
+  }
+
+  .product-not-found {
+    text-align: center;
+    padding: 40px;
+    font-size: 18px;
+    color: #666;
+  }
+}
+
+// Modal Estilos
+.share-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease;
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+}
+
+.share-modal {
+  background: white;
+  border-radius: 12px;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  animation: slideUp 0.3s ease;
+
+  @keyframes slideUp {
+    from {
+      transform: translateY(30px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid #eee;
+
+    h2 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #2d2d96;
+      margin: 0;
+    }
+
+    .btn-close {
+      background: none;
+      border: none;
+      font-size: 20px;
+      color: #999;
+      cursor: pointer;
+      transition: color 0.3s ease;
+
+      &:hover {
+        color: #fd0118;
+      }
+    }
+  }
+
+  .modal-body {
+    padding: 20px;
+
+    .share-info {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 25px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #eee;
+
+      .share-product-image {
+        width: 80px;
+        height: 80px;
+        border-radius: 6px;
+        object-fit: cover;
+      }
+
+      .share-product-info {
+        flex: 1;
+
+        h3 {
+          font-size: 14px;
+          font-weight: 600;
+          color: #2d2d96;
+          margin: 0 0 5px 0;
+        }
+
+        .share-price {
+          font-size: 16px;
+          font-weight: 600;
+          color: #fd0118;
+          margin: 5px 0;
+        }
+
+        .share-entrepreneur {
+          font-size: 12px;
+          color: #666;
+          margin: 5px 0 0 0;
+        }
+      }
+    }
+
+    .share-link-section {
+      margin-bottom: 20px;
+
+      label {
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        color: #2d2d96;
+        margin-bottom: 8px;
+      }
+
+      .share-link-container {
+        display: flex;
+        gap: 8px;
+
+        input {
+          flex: 1;
+          padding: 10px 12px;
+          border: 1px solid #ddd;
+          border-radius: 6px;
+          font-size: 12px;
+          font-family: 'Montserrat', monospace;
+          color: #666;
+          background: #f8f9fa;
+
+          &:focus {
+            outline: none;
+            border-color: #2d2d96;
+          }
+        }
+
+        .btn-copy {
+          padding: 10px 15px;
+          background: #2d2d96;
+          color: white;
+          border: none;
+          border-radius: 6px;
+          cursor: pointer;
+          font-size: 12px;
+          font-weight: 600;
+          transition: background 0.3s ease;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+
+          &:hover {
+            background: #1a1a5c;
+          }
+        }
+      }
+    }
+
+    .share-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+
+      button {
+        padding: 12px;
+        border: none;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+
+        i {
+          margin-right: 5px;
+        }
+      }
+
+      .btn-whatsapp {
+        background: #25d366;
+        color: white;
+
+        &:hover {
+          background: #1da851;
+          transform: translateY(-2px);
+        }
+      }
+
+      .btn-close-modal {
+        background: #f0f0f0;
+        color: #333;
+
+        &:hover {
+          background: #e0e0e0;
+        }
+      }
+    }
+  }
+}

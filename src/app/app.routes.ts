@@ -3,6 +3,8 @@ import { ComprarComponent } from './pages/comprar/comprar';
 import { VenderComponent } from './pages/vender/vender';
 import { BannerComponent } from './components/banner/banner';
 import { Welcome } from './components/welcome/welcome';
+import { ProductDetailComponent } from './components/product-detail/product-detail';
+
 export const routes: Routes = [
   {
     path: '',
@@ -12,6 +14,11 @@ export const routes: Routes = [
   {
     path: 'comprar',
     component: ComprarComponent,
+    data: { showHeader: true, showFooter: true }
+  },
+  {
+    path: 'producto/:id',
+    component: ProductDetailComponent,
     data: { showHeader: true, showFooter: true }
   },
   {

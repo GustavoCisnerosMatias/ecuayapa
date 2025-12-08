@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ProductService } from '../../services/product.service';
 import { LocationService } from '../../services/location.service';
 
@@ -81,7 +81,8 @@ export class ProductsComponent implements OnInit {
   constructor(
     private productService: ProductService,
     private locationService: LocationService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private router: Router
   ) {}
 
   ngOnInit() {
@@ -114,5 +115,9 @@ export class ProductsComponent implements OnInit {
   onImageError(event: Event) {
     const img = event.target as HTMLImageElement;
     img.style.display = 'none';
+  }
+
+  viewProduct(productId: number) {
+    this.router.navigate(['/producto', productId]);
   }
 }
