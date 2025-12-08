@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { LocationService, Province } from '../../services/location.service';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
+import { Sweetalert2Service } from '../../services/sweetalert2';
 
 @Component({
   selector: 'app-location-modal',
@@ -18,7 +19,7 @@ export class LocationModalComponent implements OnInit {
   selectedRegion = 'Sierra';
   regions = ['Sierra', 'Costa', 'Oriente', 'Insular'];
 
-  constructor(public locationService: LocationService, private router: Router) {
+  constructor(public locationService: LocationService, private router: Router, private alert2: Sweetalert2Service ) {
     this.showModal$ = this.locationService.showLocationModal$;
   }
 
@@ -39,9 +40,10 @@ export class LocationModalComponent implements OnInit {
       );
       this.selectProvince(nearestProvince);
     } catch (error) {
-      console.error('Error al obtener ubicación:', error);
-      alert('No pudimos acceder a tu ubicación. Por favor, selecciona una provincia manualmente.');
       this.loading = false;
+
+      this.alert2.errorToast('Error de ubicación', 'No pudimos acceder a tu ubicación. Por favor, selecciona una provincia manualmente.');
+
     }
   }
 
