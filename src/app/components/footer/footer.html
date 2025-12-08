@@ -1,37 +1,13 @@
 <footer class="footer">
-  <div class="footer-content">
-    <div class="footer-section">
-      <h3>Contacto</h3>
-      <ul>
-        <li *ngFor="let info of contactInfo">
-          <i [ngClass]="'fas fa-' + info.icon"></i>
-          <span>{{ info.text }}</span>
-        </li>
-      </ul>
-    </div>
-
-    <div class="footer-section">
-      <h3>Enlaces Útiles</h3>
-      <ul>
-        <li><a href="#">Términos y Condiciones</a></li>
-
-      </ul>
-    </div>
-
-    <div class="footer-section">
-      <h3>Síguenos</h3>
-      <div class="social-links">
-        <a *ngFor="let social of socialLinks" [href]="social.url" class="social-icon">
-          <i [ngClass]="'fab fa-' + social.icon"></i>
-        </a>
-      </div>
-    </div>
-  </div>
 
   <div class="footer-bottom">
     <p>
       © {{ currentYear }} ECUAYAPA - Ministerio de Desarrollo Humano. Todos los derechos
       reservados.
+      
+        <li><a href="#">Términos y Condiciones</a></li>
     </p>
+
+
   </div>
 </footer>

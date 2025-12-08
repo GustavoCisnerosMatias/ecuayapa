@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ProductService } from '../../services/product.service';
 import { LocationService } from '../../services/location.service';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-products',
@@ -12,112 +13,74 @@ import { LocationService } from '../../services/location.service';
   styleUrl: './products.scss',
 })
 export class ProductsComponent implements OnInit {
-  allProducts = [
-    {
-      id: 1,
-      title: 'Camiseta Premium Azul',
-      year: 2024,
-      price: 25,
-      location: 'Quito',
-      mileage: 0,
-      featured: true,
-      image: 'https://via.placeholder.com/300x200?text=Camiseta',
-    },
-    {
-      id: 2,
-      title: 'Zapatillas Deportivas',
-      year: 2024,
-      price: 85,
-      location: 'Guayaquil',
-      mileage: 0,
-      featured: true,
-      image: 'https://via.placeholder.com/300x200?text=Zapatillas',
-    },
-    {
-      id: 3,
-      title: 'Medias Algodón Pack 6',
-      year: 2024,
-      price: 12,
-      location: 'Cuenca',
-      mileage: 0,
-      featured: false,
-      image: 'https://via.placeholder.com/300x200?text=Medias',
-    },
-    {
-      id: 4,
-      title: 'Pantalón Jean Premium',
-      year: 2024,
-      price: 65,
-      location: 'Quito',
-      mileage: 0,
-      featured: true,
-      image: 'https://via.placeholder.com/300x200?text=Pantalon',
-    },
-    {
-      id: 5,
-      title: 'Chocolate Artesanal 100g',
-      year: 2024,
-      price: 8,
-      location: 'Ambato',
-      mileage: 0,
-      featured: false,
-      image: 'https://via.placeholder.com/300x200?text=Chocolate',
-    },
-    {
-      id: 6,
-      title: 'Café Gourmet Molido',
-      year: 2024,
-      price: 18,
-      location: 'Guayaquil',
-      mileage: 0,
-      featured: true,
-      image: 'https://via.placeholder.com/300x200?text=Cafe',
-    },
-  ];
+    allProducts: any[] = [];
+  products: any[] = [];
 
-  products = this.allProducts;
   selectedProvince: string | null = null;
 
   constructor(
     private productService: ProductService,
-    private locationService: LocationService,
     private route: ActivatedRoute,
     private router: Router
   ) {}
 
-  ngOnInit() {
-    // Buscar provincia en query params
-    this.route.queryParams.subscribe((params) => {
-      if (params['provincia']) {
-        this.selectedProvince = params['provincia'];
-        this.filterByProvince();
-      } else {
-        this.products = this.allProducts;
-      }
-    });
-  }
+ngOnInit(): void {
+  this.loadProducts();
+ 
+}
 
-  filterByProvince() {
-    if (this.selectedProvince) {
-      this.products = this.productService.highlightProductsByProvince(
-        this.allProducts,
-        this.selectedProvince
-      );
-    } else {
-      this.products = this.allProducts;
+
+loadProducts(){
+ // leer la provincia del query param
+  this.route.queryParams.subscribe(params => {
+    this.selectedProvince = params['provincia'] ?? null;
+  });
+
+  // cargar productos
+  this.productService.getProductsByProvince(1).subscribe({
+    next: (result: any) => {
+
+
+
+      if (result?.data) {
+        this.allProducts = result.data.map((p: any) => ({
+          ...p,
+          price: Number(p.price),
+
+          // ruta completa para que funcione localmente
+          img: p.img ? `http://localhost:8000/uploads/${p.img}` : null,
+
+          // campos que pide tu HTML pero no existen en backend
+          location: p.address ?? 'Sin dirección',
+          year: new Date().getFullYear(),
+          featured: false
+        }));
+
+        // lista inicial
+        this.products = [...this.allProducts];
+
+        console.log("Productos cargados:", this.products);
+      }
+    },
+    error: (err) => {
+      console.error("Error cargando productos:", err);
     }
-  }
+  });
+}
 
   formatPrice(price: number): string {
-    return new Intl.NumberFormat('es-EC', { style: 'currency', currency: 'USD' }).format(price);
+    return new Intl.NumberFormat('es-EC', {
+      style: 'currency',
+      currency: 'USD',
+    }).format(price);
   }
 
-  onImageError(event: Event) {
+  onImageError(event: Event): void {
     const img = event.target as HTMLImageElement;
     img.style.display = 'none';
   }
 
-  viewProduct(productId: number) {
+  viewProduct(productId: number): void {
     this.router.navigate(['/producto', productId]);
   }
 }

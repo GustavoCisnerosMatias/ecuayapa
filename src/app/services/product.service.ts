@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
 import { LocationService, Province } from './location.service';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
 export interface Product {
   id: number;
@@ -38,7 +40,7 @@ export class ProductService {
     galápagos: ['Puerto Ayora', 'Insular'],
   };
 
-  constructor(private locationService: LocationService) {}
+  constructor(private locationService: LocationService, private http: HttpClient) {}
 
   filterProductsByProvince(products: Product[], provinceId?: string): Product[] {
     if (!provinceId) {
@@ -67,5 +69,10 @@ export class ProductService {
       ...product,
       featured: locations.some((loc) => product.location.includes(loc)) || product.featured,
     }));
+  }
+
+
+  getProductsByProvince(id_province: number): Observable<Product[]> {
+    return this.http.get<Product[]>(`http://localhost:8000/api/products.php?id_province=${id_province}`);
   }
 }

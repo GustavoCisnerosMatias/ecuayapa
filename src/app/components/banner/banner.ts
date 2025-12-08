@@ -13,7 +13,7 @@ export class BannerComponent {
   bannerText = {
     title: 'BIENVENIDO A ECUAYAPA',
     subtitle: 'Compra, vende y encuentra productos en todo el Ecuador',
-    cta: 'Explorar Ahora',
+    cta: 'Comprar',
   };
 
   constructor(private locationService: LocationService) {}
