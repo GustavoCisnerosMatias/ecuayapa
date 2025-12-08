@@ -1,4 +1,5 @@
 import { Component, ElementRef, ViewChild, OnInit, NgZone, ChangeDetectorRef } from '@angular/core';
+import { Router } from '@angular/router';
 import * as L from 'leaflet';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -170,13 +171,12 @@ export class Welcome implements OnInit {
   constructor(
     private ngZone: NgZone,
     private cdr: ChangeDetectorRef,
-    private sweetAlert: Sweetalert2Service
+    private sweetAlert: Sweetalert2Service,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
-    // Inicializar lista filtrada
     this.filteredLocations = [...this.nearbyLocations];
-    // Extraer categorías únicas
     this.availableCategories = [...new Set(this.nearbyLocations.map(loc => loc.category_name?.toString() || ''))];
   }
 
@@ -211,7 +211,7 @@ export class Welcome implements OnInit {
           this.loading = false;
           this.userDenied = true;
           this.cdr.markForCheck();
-          this.sweetAlert.warning('No se pudo obtener tu ubicación', 'Por favor, selecciona tu ubicación haciendo clic en el mapa.');
+          //this.sweetAlert.warning('No se pudo obtener tu ubicación', 'Por favor, selecciona tu ubicación haciendo clic en el mapa.');
         });
       },
       { enableHighAccuracy: false, timeout: 3000, maximumAge: 300000 }
@@ -454,7 +454,20 @@ export class Welcome implements OnInit {
 
   confirmLocation() {
     this.confirmed = true;
-    alert(`Ubicación confirmada:\nLat: ${this.lat}\nLng: ${this.lng}`);
+    // Guardar ubicación en localStorage
+    const locationData = {
+      lat: this.lat,
+      lng: this.lng,
+      circleRadius: this.circleRadius,
+      timestamp: new Date().toISOString()
+    };
+    localStorage.setItem('ecuayapa_location', JSON.stringify(locationData));
+    
+    // Mostrar alerta de éxito y redirigir a comprar
+    this.sweetAlert.successToast('Ubicación guardada', 'Preparando para explorar...');
+    setTimeout(() => {
+      this.router.navigate(['/comprar']);
+    }, 1500);
   }
 
   // ================================

@@ -14,9 +14,10 @@
       <a
         *ngFor="let item of menuItems"
         [routerLink]="item.route"
-        (click)="setActive(item.route)"
+        (click)="item.isModal ? openLocationModal() : setActive(item.route!)"
         [class.active]="activeRoute === item.route"
         class="nav-item"
+        [class.modal-link]="item.isModal"
       >
         <i [ngClass]="'fas fa-' + item.icon"></i>
         <span>{{ item.label }}</span>

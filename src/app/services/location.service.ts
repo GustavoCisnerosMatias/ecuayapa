@@ -66,7 +66,7 @@ export class LocationService {
       name: 'Santa Elena',
       lat: -2.21,
       lng: -80.38,
-      icon: 'waves',
+      icon: 'turtle', // icono representativo de fauna marina
       region: 'Costa',
     },
     {
@@ -158,14 +158,16 @@ export class LocationService {
       region: 'Oriente',
     },
     {
-      id: 'galápagos',
+      id: 'galapagos',
       name: 'Galápagos',
       lat: -0.97,
       lng: -90.73,
-      icon: 'mountain',
+      icon: 'tortoise', // tortuga gigante como icono representativo
       region: 'Insular',
     },
   ];
+
+
 
   constructor() {}
 

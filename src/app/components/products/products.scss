@@ -121,7 +121,15 @@
   gap: 0.75rem;
   opacity: 0;
   transition: opacity 0.3s ease;
+  z-index: 5; /* <--- agregar z-index para que quede encima del fallback */
+  pointer-events: none; /* evita que bloquee la imagen al no estar visible */
 }
+
+.product-image:hover .product-overlay {
+  opacity: 1;
+  pointer-events: auto; /* <--- permite clics cuando se muestra */
+}
+
 
 .btn-view,
 .btn-contact {

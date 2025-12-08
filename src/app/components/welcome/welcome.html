@@ -24,8 +24,7 @@
 
     <div class="map-and-info">
       <div #mapContainer class="map"></div>
-      <!-- Botón cambiar ubicación (posicionado sobre el mapa con CSS) -->
-      <!-- Siempre visible una vez se establece la ubicación inicial -->
+
       <button class="btn-change-location-overlay" (click)="activateChangeLocationMode()" 
               [class.active]="changeLocationMode"
               *ngIf="pointSelected"
@@ -38,26 +37,6 @@
 
       <div class="info">
         <div class="glass">
-          <!-- ESTADO DEL PERMISO -->
-          <!-- Solo mostrar si permiso fue denegado -->
-          <div class="permission-status" *ngIf="userDenied && permissionRequested">
-            <div class="status-denied">
-              ✗ Permiso denegado
-              <p>Por favor, selecciona tu ubicación haciendo clic en el mapa.</p>
-            </div>
-          </div>
-
-          <!-- Indicador modo cambiar ubicación -->
-          <div class="permission-status" *ngIf="(userDenied || changeLocationMode) && !pointSelected" class="status-info">
-            <p><strong>Modo activo:</strong> Haz clic en el mapa para establecer tu ubicación.</p>
-          </div>
-
-          <p class="muted">La ubicación es necesaria para mostrar emprendimientos cercanos.</p>
-          
-          <!-- Botón Reintentar permiso (solo si fue denegado) -->
-          <button class="btn primary" (click)="getCurrentLocation()" *ngIf="userDenied && permissionRequested">
-            Reintentar permiso
-          </button>
 
           <!-- Control de rango del círculo - SIEMPRE VISIBLE -->
           <div class="range-control">

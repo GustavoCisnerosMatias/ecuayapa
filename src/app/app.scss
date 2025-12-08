@@ -11,8 +11,7 @@
 body {
   margin: 0 !important;
   padding: 0 !important;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
-    'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  font-family: 'Montserrat';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -37,6 +36,21 @@ app-root {
 
 .main-content {
   flex: 1;
+}
+
+.main-content.full-screen {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+footer {
+  background: #1a1a1a;
+  color: white;
+  text-align: center;
+  padding: 20px;
+  margin-top: auto;
 }
 
 /* Scrollbar personalizada */

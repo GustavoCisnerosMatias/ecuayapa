@@ -47,11 +47,20 @@ export class LocationModalComponent implements OnInit {
     }
   }
 
+
   selectProvince(province: Province) {
     this.locationService.selectProvince(province);
-    // Redirigir a comprar con la provincia
-    this.router.navigate(['/comprar'], { queryParams: { provincia: province.id } });
+
+    const currentUrl = this.router.url.split('?')[0]; 
+
+    const targetUrl = (currentUrl === '' || currentUrl === '/') ? '/comprar' : currentUrl;
+
+    this.router.navigate([targetUrl], { queryParams: { provincia: province.id } });
+
+    this.closeModal();
   }
+
+
 
   getProvincesByRegion(region: string): Province[] {
     return this.locationService.getProvinceByRegion(region);
