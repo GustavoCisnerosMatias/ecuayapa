@@ -1,8 +1,4 @@
 <div class="wrap">
-
-  <!-- Fondo animado -->
-  <div class="bg-animated"></div>
-
   <!-- Overlay de carga -->
   <div class="loading-overlay" *ngIf="loading">
     <div class="spinner"></div>
@@ -16,9 +12,6 @@
       <div class="panel-title">
         <h2>Selecciona tu ubicación</h2>
         <div class="muted">Puedes mover el mapa o elegir un punto.</div>
-      </div>
-      <div class="status" [ngClass]="userDenied ? 'no' : 'ok'">
-        {{ userDenied ? 'Permiso no concedido' : 'Permiso activo' }}
       </div>
     </div>
 
@@ -73,11 +66,11 @@
             <!-- Lista filtrada de emprendimientos -->
             <div class="location-item" *ngFor="let loc of filteredLocations" (click)="openLocationModal(loc)">
               <div class="location-marker">
-                <i class="fa-solid fa-store fa-5x"></i>
+                <i class="fa-solid fa-store"></i>
               </div>
               <div class="location-info">
                 <p class="location-name">{{ loc.title }}</p>
-                <p class="location-type">{{ loc.type }}</p>
+                <p class="location-type">{{ loc.category_name }}</p>
                 <p class="location-distance">📍 {{ loc.distance }}</p>
                 <p class="location-desc">{{ loc.description | slice:0:60 }}...</p>
               </div>
@@ -98,13 +91,13 @@
   <div class="modal-overlay" *ngIf="showModal" (click)="closeLocationModal()">
     <div class="modal-content" *ngIf="selectedLocation" (click)="$event.stopPropagation()">
       <div class="modal-header">
-        <h3>{{ selectedLocation.name }}</h3>
+        <h3>{{ selectedLocation.title }}</h3>
         <button class="btn-close" (click)="closeLocationModal()">✕</button>
       </div>
       
       <div class="modal-body">
         <div class="modal-section">
-          <label>Tipo:</label>
+          <label>Categoría:</label>
           <p>{{ selectedLocation.category_name }}</p>
         </div>
         
@@ -113,17 +106,21 @@
           <p>{{ selectedLocation.description }}</p>
         </div>
         
-
+        <div class="modal-section">
+          <label>Precio:</label>
+          <p class="price-highlight">{{ formatPrice(selectedLocation.price) }}</p>
+        </div>
         
         <div class="modal-section">
           <label>Distancia:</label>
-          <p>{{ selectedLocation.distance }}</p>
+          <p>📍 {{ selectedLocation.distance }}</p>
         </div>
       </div>
       
       <div class="modal-footer">
-        <button class="btn primary" (click)="closeLocationModal()">Cerrar</button>
-        <button class="btn secondary" (click)="viewLocationOnMap(selectedLocation)">Ver en mapa</button>
+        <button class="btn primary" (click)="viewProduct(selectedLocation.id_product)"><i class="fas fa-eye"></i> Ver Detalles</button>
+        <button class="btn secondary" (click)="viewLocationOnMap(selectedLocation)"><i class="fas fa-map"></i> Ver en Mapa</button>
+        <button class="btn secondary" (click)="closeLocationModal()"><i class="fas fa-times"></i> Cerrar</button>
       </div>
     </div>
   </div>
@@ -174,7 +171,4 @@
       </div>
     </div>
   </div>
-  <div class="footer">
-    © ECUAYAPA - MINISTERIO DE DESARROLLO HUMANO 
-  </div>
-</div>
+

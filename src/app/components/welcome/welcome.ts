@@ -1,9 +1,9 @@
-import { Component, ElementRef, ViewChild, OnInit, NgZone, ChangeDetectorRef } from '@angular/core';
+import { Component, ElementRef, ViewChild, OnInit, NgZone, ChangeDetectorRef, AfterViewInit } from '@angular/core';
 import { Router } from '@angular/router';
 import * as L from 'leaflet';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Sweetalert2Service } from '../../services/sweetalert2';
+import { Sweetalert2Service } from '../../services/sweetalert2'
 
 
 export interface Product {
@@ -81,7 +81,7 @@ export class Welcome implements OnInit {
     updated_at: null,
     id_subcategory: 8,
     status_descripcion: 'Disponible',
-    id_product: 'e5f6g7h8',
+    id_product: '1',
     id_user: 'u002',
     id_store: 's002',
     lat: -0.089,
@@ -525,5 +525,14 @@ export class Welcome implements OnInit {
 
   round(v: number) {
     return Math.round(v * 100000) / 100000;
+  }
+
+  formatPrice(price: number): string {
+    return `$${price.toFixed(2)}`;
+  }
+
+  viewProduct(productId: string) {
+    console.log(productId);
+    this.router.navigate(['/producto', productId]);
   }
 }

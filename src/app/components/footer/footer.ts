@@ -12,15 +12,15 @@ export class FooterComponent {
   currentYear = new Date().getFullYear();
 
   contactInfo = [
-    { icon: 'phone', text: '+593 (2) 3814-000' },
-    { icon: 'envelope', text: 'info@desarrollo.gob.ec' },
-    { icon: 'map-marker-alt', text: 'Av. Amazonas y Atahualpa, Quito' },
+    { icon: 'phone', text: '+593-2398-3100' },
+    // { icon: 'envelope', text: 'info@desarrollo.gob.ec' },
+    { icon: 'map-marker-alt', text: 'Av. Amaru Ñan, Quito 170146. Piso 5 Plataforma Gubernamental de Desarrollo Social.' },
   ];
 
   socialLinks = [
     { icon: 'facebook-f', url: '#' },
-    { icon: 'twitter', url: '#' },
+    { icon: 'x', url: '#' },
     { icon: 'instagram', url: '#' },
-    { icon: 'linkedin-in', url: '#' },
+
   ];
 }

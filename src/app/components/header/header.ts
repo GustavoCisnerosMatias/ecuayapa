@@ -1,20 +1,34 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { RouterLink ,RouterLinkActive} from '@angular/router';
 import { LocationService } from '../../services/location.service';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, RouterLinkActive],
   templateUrl: './header.html',
   styleUrl: './header.scss',
 })
 export class HeaderComponent {
   constructor(private locationService: LocationService) {}
+
+
+
+
+  activeRoute: string = '/comprar';
+
+  setActive(route: string) {
+    this.activeRoute = route;
+  }
+
+
+
+
+
   menuItems: Array<{
     label: string;
-    route?: string; // opcional porque los modales no tienen ruta
+    route?: string;
     icon: string;
     isModal?: boolean;
   }> = [
@@ -24,13 +38,6 @@ export class HeaderComponent {
     { label: 'Cambiar Ubicación', icon: 'map', isModal: true },
   ];
 
-
-
-  activeRoute: string = '/comprar';
-
-  setActive(route: string) {
-    this.activeRoute = route;
-  }
   openLocationModal() {
     this.locationService.openLocationModal();
   }

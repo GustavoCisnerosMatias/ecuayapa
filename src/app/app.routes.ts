@@ -9,7 +9,7 @@ export const routes: Routes = [
   {
     path: '',
     component: BannerComponent,
-    data: { showHeader: false, showFooter: false }
+    data: { showHeader: true, showFooter: true }
   },
   {
     path: 'comprar',
@@ -22,9 +22,9 @@ export const routes: Routes = [
     data: { showHeader: true, showFooter: true }
   },
   {
-    path: 'welcome',
+    path: 'banner',
     component: BannerComponent,
-    data: { showHeader: false, showFooter: false }
+    data: { showHeader: true, showFooter: true }
   },
   {
     path: 'vender',

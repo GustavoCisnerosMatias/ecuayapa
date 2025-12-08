@@ -1,11 +1,156 @@
-<section class="banner">
-  <div class="banner-overlay"></div>
-  <div class="banner-content">
-    <h2 class="banner-title">{{ bannerText.title }}</h2>
-    <p class="banner-subtitle">{{ bannerText.subtitle }}</p>
-    <button class="banner-cta" (click)="openLocationModal()">
-      <i class="fas fa-arrow-right"></i>
-      {{ bannerText.cta }}
-    </button>
+<section
+  class="relative w-full min-h-[calc(100vh-140px)] flex items-center justify-center overflow-hidden
+        bg-white"
+>
+  <!-- Glow orbs decorativos -->
+  <div class="pointer-events-none absolute -top-24 -left-24 h-72 w-72 rounded-full bg-primary/5 blur-3xl animate-pulse-slow"></div>
+  <div class="pointer-events-none absolute -bottom-16 -right-10 h-64 w-64 rounded-full bg-secondary/5 blur-3xl animate-float-slow"></div>
+
+  <!-- Patrón overlay -->
+  <div
+    class="absolute inset-0 opacity-5 mix-blend-soft-light"
+    style="background-image: url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1200 400%22><defs><pattern id=%22pattern%22 x=%220%22 y=%220%22 width=%22100%22 height=%22100%22 patternUnits=%22userSpaceOnUse%22><path d=%22M0,50 Q25,25 50,50 T100,50%22 fill=%22none%22 stroke=%22rgba(45,45,150,0.08)%22 stroke-width=%222%22/></pattern></defs><rect width=%221200%22 height=%22400%22 fill=%22url(%23pattern)%22/></svg>');
+           background-size: 200px 200px;"
+  ></div>
+
+  <!-- Contenido principal tipo dashboard -->
+<div class="relative z-10 mx-auto flex max-w-6xl flex-col gap-16 px-4 sm:px-8 lg:flex-row lg:items-center lg:gap-16">
+    <!-- Logo épico lado izquierdo -->
+    <div class="absolute -top-12 -left-12 lg:relative lg:top-0 lg:left-0 lg:flex lg:justify-end lg:flex-1">
+      <div class="relative">
+        <!-- Glow de fondo para el logo -->
+        <div class="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/10 rounded-full blur-3xl animate-pulse-slow" style="width: 280px; height: 280px; top: 50%; left: 50%; transform: translate(-50%, -50%);"></div>
+        <!-- Anillo rotatorio -->
+        <div class="absolute inset-0 rounded-full border-2 border-transparent border-t-primary/40 border-r-primary/20 animate-spin" style="width: 280px; height: 280px; animation-duration: 20s;"></div>
+        <!-- Logo -->
+        <img 
+          src="assets/logo.png" 
+          alt="ECUAYAPA Logo" 
+          class="relative w-48 h-48 sm:w-56 sm:h-56 lg:w-64 lg:h-64 drop-shadow-2xl animate-float-slow"
+        />
+
+      </div>
+    </div>
+    
+    <!-- Texto + CTA -->
+    <div class="text-center lg:text-left text-primary space-y-6 animate-slide-up lg:flex-1">
+      <div class="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1 text-xs sm:text-sm backdrop-blur-md border border-primary/20 shadow-lg animate-badge-pop">
+        <span class="h-2 w-2 rounded-full bg-emerald-400 animate-ping-once"></span>
+        <span class="font-semibold tracking-wide text-primary">Nuevo en ECUAYAPA</span>
+        <span class="text-primary/70">Explora oportunidades cerca de ti</span>
+      </div>
+
+      <h2 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight drop-shadow-2xl">
+        {{ bannerText.title }}
+      </h2>
+
+      <p class="text-base sm:text-lg lg:text-xl text-primary/90 max-w-xl mx-auto lg:mx-0">
+        {{ bannerText.subtitle }}
+      </p>
+
+      <div class="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start">
+        <button
+          (click)="openLocationModal()"
+          class="group inline-flex items-center gap-3 rounded-full bg-primary text-white font-semibold
+                 px-7 sm:px-9 py-3 sm:py-3.5 text-sm sm:text-base shadow-xl
+                 hover:bg-secondary hover:text-white hover:shadow-[0_18px_40px_rgba(0,0,0,0.35)]
+                 transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-[1.02]"
+        >
+          <span>{{ bannerText.cta }}</span>
+          <span
+            class="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-white
+                   group-hover:bg-white group-hover:text-primary transition-all duration-300"
+          >
+            <i class="fas fa-arrow-right text-sm group-hover:translate-x-0.5 transition-transform duration-300"></i>
+          </span>
+        </button>
+
+        <button
+          class="inline-flex items-center gap-2 text-primary/80 hover:text-primary text-sm sm:text-base
+                 transition-colors duration-300"
+        >
+          <i class="fas fa-play-circle text-lg sm:text-xl animate-pulse-slow"></i>
+          <span>Ver cómo funciona</span>
+        </button>
+      </div>
+
+      <!-- Mini métricas -->
+      <div class="mt-4 flex flex-wrap justify-center lg:justify-start gap-4 text-xs sm:text-sm text-primary/80">
+        <div class="flex items-center gap-2">
+          <span class="h-2 w-2 rounded-full bg-emerald-400"></span>
+          <span>+10k productos activos</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="h-2 w-2 rounded-full bg-sky-400"></span>
+          <span>Compradores en todo Ecuador</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tarjetas tipo dashboard -->
+    <div
+      class="hidden lg:flex relative flex-1 justify-center lg:justify-end animate-slide-up-delayed"
+    >
+      <div class="relative grid grid-cols-1 sm:grid-cols-2 gap-5 max-w-sm w-full">
+        <!-- Card 1 -->
+        <div
+          class="group rounded-3xl bg-primary/10 border border-primary/20 shadow-2xl backdrop-blur-xl
+                 p-5 sm:p-6 text-primary flex flex-col gap-3
+                 hover:bg-primary/15 hover:-translate-y-1 hover:shadow-[0_20px_45px_rgba(0,0,0,0.45)]
+                 transition-all duration-300"
+        >
+          <div class="flex items-center justify-between">
+            <span class="text-xs uppercase tracking-wide text-primary/60">Tus ventas</span>
+            <span class="inline-flex items-center gap-1 text-emerald-600 text-xs">
+              <i class="fas fa-arrow-up text-[10px]"></i>
+              +18% hoy
+            </span>
+          </div>
+          <div class="text-2xl font-bold">$1.250</div>
+          <div class="h-1.5 w-full overflow-hidden rounded-full bg-primary/10">
+            <div class="h-full w-3/4 rounded-full bg-emerald-400 animate-bar-fill"></div>
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div
+          class="group rounded-3xl bg-primary/5 border border-primary/15 shadow-xl backdrop-blur-xl
+                 p-5 sm:p-6 text-primary flex flex-col gap-3
+                 hover:bg-primary/10 hover:-translate-y-1 hover:shadow-[0_20px_45px_rgba(0,0,0,0.4)]
+                 transition-all duration-300"
+        >
+          <div class="flex items-center justify-between">
+            <span class="text-xs uppercase tracking-wide text-primary/60">Productos</span>
+            <i class="fas fa-box-open text-primary/60 text-sm"></i>
+          </div>
+          <div class="text-2xl font-bold">38 activos</div>
+          <p class="text-xs text-primary/70">
+            5 productos con alta demanda cerca de ti.
+          </p>
+        </div>
+
+        <!-- Card 3 grande -->
+        <div
+          class="sm:col-span-2 rounded-3xl bg-primary/10 border border-primary/25 shadow-2xl backdrop-blur-2xl
+                 p-5 sm:p-6 text-primary flex items-center justify-between gap-4
+                 hover:bg-primary/15 hover:-translate-y-1 hover:shadow-[0_20px_45px_rgba(0,0,0,0.5)]
+                 transition-all duration-300"
+        >
+          <div class="space-y-1">
+            <p class="text-xs uppercase tracking-wide text-primary/60">
+              Actividad en Ecuador
+            </p>
+            <p class="text-sm sm:text-base font-medium">
+              Usuarios buscando cerca de tu ubicación ahora mismo.
+            </p>
+          </div>
+          <div class="flex -space-x-2">
+            <span class="h-8 w-8 rounded-full bg-emerald-400/80 border-2 border-primary/40 animate-bounce-soft"></span>
+            <span class="h-8 w-8 rounded-full bg-sky-400/80 border-2 border-primary/40 animate-bounce-soft [animation-delay:120ms]"></span>
+            <span class="h-8 w-8 rounded-full bg-amber-400/80 border-2 border-primary/40 animate-bounce-soft [animation-delay:220ms]"></span>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </section>

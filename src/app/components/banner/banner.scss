@@ -1,116 +1,56 @@
-.banner {
-  position: relative;
-  height: 100vh;        
-  min-height: 100vh;
-  background: linear-gradient(135deg, #FFC003 0%, #2D2D96 50%, #FD0118 100%);
-  background-size: 200% 200%;
-  animation: gradient-shift 8s ease infinite;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
-
 @keyframes gradient-shift {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-.banner-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400"><defs><pattern id="pattern" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M0,50 Q25,25 50,50 T100,50" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="2"/></pattern></defs><rect width="1200" height="400" fill="url(%23pattern)"/></svg>');
-  background-size: 200px 200px;
-  opacity: 0.3;
-}
-
-.banner-content {
-  position: relative;
-  z-index: 10;
-  text-align: center;
-  color: white;
-  animation: slide-up 0.8s ease-out;
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 @keyframes slide-up {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-.banner-title {
-  font-size: 3.5rem;
-  font-weight: 700;
-  margin: 0 0 1rem;
-  text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
-  letter-spacing: 2px;
+@keyframes slide-up-delayed {
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-.banner-subtitle {
-  font-size: 1.3rem;
-  margin: 0 0 2rem;
-  opacity: 0.95;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+@keyframes pulse-slow {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.05); }
 }
 
-.banner-cta {
-  background-color: white;
-  color: #2D2D96;
-  border: none;
-  padding: 1rem 2.5rem;
-  font-size: 1.1rem;
-  font-weight: 600;
-  border-radius: 50px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.75rem;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-
-  &:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-    background-color: #FFC003;
-    color: #2D2D96;
-  }
-
-  i {
-    font-size: 1.2rem;
-  }
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
 }
 
-@media (max-width: 768px) {
-  .banner {
-    height: 250px;
-  }
-
-  .banner-title {
-    font-size: 2rem;
-    letter-spacing: 1px;
-  }
-
-  .banner-subtitle {
-    font-size: 1rem;
-  }
-
-  .banner-cta {
-    padding: 0.75rem 1.5rem;
-    font-size: 1rem;
-  }
+@keyframes badge-pop {
+  0% { opacity: 0; transform: translateY(10px) scale(0.9); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
 }
+
+@keyframes ping-once {
+  0% { transform: scale(0.8); opacity: 0; }
+  50% { transform: scale(1.4); opacity: 0.7; }
+  100% { transform: scale(1); opacity: 0; }
+}
+
+@keyframes bar-fill {
+  0% { width: 0%; }
+  100% { width: 75%; }
+}
+
+@keyframes bounce-soft {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+.animate-gradient { background-size: 200% 200%; animation: gradient-shift 10s ease-in-out infinite; }
+.animate-slide-up { animation: slide-up 0.8s ease-out both; }
+.animate-slide-up-delayed { animation: slide-up-delayed 1s ease-out 0.15s both; }
+.animate-pulse-slow { animation: pulse-slow 3s ease-in-out infinite; }
+.animate-float-slow { animation: float-slow 6s ease-in-out infinite; }
+.animate-badge-pop { animation: badge-pop 0.7s ease-out both; }
+.animate-ping-once { animation: ping-once 1.2s ease-out 0.3s 1 both; }
+.animate-bar-fill { animation: bar-fill 1.4s ease-out 0.4s forwards; }
+.animate-bounce-soft { animation: bounce-soft 2.2s ease-in-out infinite; }

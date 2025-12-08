@@ -1,6 +1,7 @@
 <header class="header">
   <div class="header-content">
-    <div class="logo-section">
+    <!-- Logo con enlace al inicio -->
+    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="logo-section">
       <div class="logo-icon">
         <i class="fas fa-map"></i>
       </div>
@@ -8,14 +9,15 @@
         <h1>ECUAYAPA</h1>
         <p>Ministerio de Desarrollo Humano</p>
       </div>
-    </div>
+    </a>
 
     <nav class="nav-menu">
       <a
         *ngFor="let item of menuItems"
         [routerLink]="item.route"
-        (click)="item.isModal ? openLocationModal() : setActive(item.route!)"
-        [class.active]="activeRoute === item.route"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        (click)="item.isModal ? openLocationModal() : null"
         class="nav-item"
         [class.modal-link]="item.isModal"
       >
