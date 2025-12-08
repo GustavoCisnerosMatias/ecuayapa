@@ -9,7 +9,7 @@ import { CommonModule } from '@angular/common';
   styleUrl: './products.scss',
 })
 export class ProductsComponent {
-  cars = [
+  products = [
     {
       id: 1,
       title: 'Toyota Corolla 2022',

@@ -1,32 +1,38 @@
 <section class="products-section">
   <div class="products-container">
     <div class="section-header">
-      <h2>Vehículos Disponibles</h2>
-      <p>Encuentra los mejores autos en Ecuador</p>
+      <h2>Productos Disponibles</h2>
+      <p>Encuentra los mejores productos en Ecuador</p>
     </div>
 
     <div class="products-grid">
-      <div *ngFor="let car of cars" class="product-card" [class.featured]="car.featured">
-        <div class="product-badge" *ngIf="car.featured">
+      <div
+        *ngFor="let product of products"
+        class="product-card"
+        [class.featured]="product.featured"
+      >
+        <div class="product-badge" *ngIf="product.featured">
           <i class="fas fa-star"></i> Destacado
         </div>
         <div class="product-image">
-          <img [src]="car.image" [alt]="car.title" />
+          <img [src]="product.image" [alt]="product.title" />
           <div class="product-overlay">
             <button class="btn-view"><i class="fas fa-eye"></i> Ver Detalles</button>
             <button class="btn-contact"><i class="fas fa-phone"></i> Contactar</button>
           </div>
         </div>
         <div class="product-info">
-          <h3 class="product-title">{{ car.title }}</h3>
+          <h3 class="product-title">{{ product.title }}</h3>
           <div class="product-specs">
-            <span class="spec"><i class="fas fa-calendar"></i> {{ car.year }}</span>
-            <span class="spec"><i class="fas fa-road"></i> {{ car.mileage.toLocaleString() }} km</span>
+            <span class="spec"><i class="fas fa-calendar"></i> {{ product.year }}</span>
+            <span class="spec"
+              ><i class="fas fa-road"></i> {{ product.mileage.toLocaleString() }} km</span
+            >
           </div>
           <div class="product-location">
-            <i class="fas fa-map-marker-alt"></i> {{ car.location }}
+            <i class="fas fa-map-marker-alt"></i> {{ product.location }}
           </div>
-          <div class="product-price">{{ formatPrice(car.price) }}</div>
+          <div class="product-price">{{ formatPrice(product.price) }}</div>
           <button class="btn-primary"><i class="fas fa-shopping-cart"></i> Interesado</button>
         </div>
       </div>

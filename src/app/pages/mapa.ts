@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import * as L from 'leaflet';
 
-interface Vehicle {
+interface Product {
   id: number;
   title: string;
   brand: string;
@@ -26,13 +26,14 @@ interface Vehicle {
 })
 export class MapaComponent implements OnInit {
   map!: L.Map;
+  showFilters: boolean = false;
   selectedBrand: string = '';
   minPrice: number = 0;
   maxPrice: number = 100000;
   minYear: number = 2010;
   searchRadius: number = 50; // km
-  filteredVehicles: Vehicle[] = [];
-  allVehicles: Vehicle[] = [
+  filteredProducts: Product[] = [];
+  allProducts: Product[] = [
     {
       id: 1,
       title: 'Toyota Corolla 2022',
@@ -116,7 +117,7 @@ export class MapaComponent implements OnInit {
   markers: { [key: number]: L.Marker } = {};
 
   ngOnInit() {
-    this.filteredVehicles = [...this.allVehicles];
+    this.filteredProducts = [...this.allProducts];
     setTimeout(() => this.initMap(), 100);
   }
 
@@ -139,57 +140,74 @@ export class MapaComponent implements OnInit {
     Object.values(this.markers).forEach((marker) => this.map.removeLayer(marker));
     this.markers = {};
 
-    // Add markers for filtered vehicles
-    this.filteredVehicles.forEach((vehicle) => {
-      const marker = L.marker([vehicle.lat, vehicle.lng])
+    // Add markers for filtered products
+    this.filteredProducts.forEach((product) => {
+      const marker = L.marker([product.lat, product.lng])
         .addTo(this.map)
-        .bindPopup(this.createMarkerPopup(vehicle));
+        .bindPopup(this.createMarkerPopup(product));
 
-      this.markers[vehicle.id] = marker;
+      this.markers[product.id] = marker;
     });
   }
 
-  private createMarkerPopup(vehicle: Vehicle): string {
+  private createMarkerPopup(product: Product): string {
     return `
       <div style="width: 200px; text-align: center;">
         <img src="${
-          vehicle.image
+          product.image
         }" style="width: 100%; height: 100px; object-fit: cover; border-radius: 4px; margin-bottom: 8px;">
-        <b style="color: #2d2d96;">${vehicle.title}</b><br>
-        <span style="color: #666;">$${vehicle.price.toLocaleString()}</span><br>
-        <small style="color: #888;">${vehicle.mileage.toLocaleString()} km | ${vehicle.city}</small>
+        <b style="color: #2d2d96;">${product.title}</b><br>
+        <span style="color: #666;">$${product.price.toLocaleString()}</span><br>
+        <small style="color: #888;">${product.mileage.toLocaleString()} km | ${product.city}</small>
       </div>
     `;
   }
 
   applyFilters() {
-    this.filteredVehicles = this.allVehicles.filter((vehicle) => {
-      const matchesBrand = this.selectedBrand === '' || vehicle.brand === this.selectedBrand;
-      const matchesPrice = vehicle.price >= this.minPrice && vehicle.price <= this.maxPrice;
-      const matchesYear = vehicle.year >= this.minYear;
+    this.filteredProducts = this.allProducts.filter((product) => {
+      const matchesBrand = this.selectedBrand === '' || product.brand === this.selectedBrand;
+      const matchesPrice = product.price >= this.minPrice && product.price <= this.maxPrice;
+      const matchesYear = product.year >= this.minYear;
       return matchesBrand && matchesPrice && matchesYear;
     });
 
     this.updateMapMarkers();
   }
 
-  centerOnVehicle(vehicle: Vehicle) {
-    this.map.setView([vehicle.lat, vehicle.lng], 13);
-    this.markers[vehicle.id]?.openPopup();
+  centerOnProduct(product: Product) {
+    this.map.setView([product.lat, product.lng], 13);
+    this.markers[product.id]?.openPopup();
   }
 
-  contactVehicle(vehicle: Vehicle) {
+  contactProduct(product: Product) {
     // In a real app, this would open a contact form or modal
     alert(
-      `¡Contactar sobre: ${vehicle.title}\nTeléfono: +593 (2) 3814-000\nEmail: info@desarrollo.gob.ec`
+      `¡Contactar sobre: ${product.title}\nTeléfono: +593 (2) 3814-000\nEmail: info@desarrollo.gob.ec`
     );
   }
 
   getBrands(): string[] {
-    return Array.from(new Set(this.allVehicles.map((v) => v.brand))).sort();
+    return Array.from(new Set(this.allProducts.map((p) => p.brand))).sort();
   }
 
   formatPrice(price: number): string {
     return new Intl.NumberFormat('es-EC', { style: 'currency', currency: 'USD' }).format(price);
+  }
+
+  openFilters() {
+    this.showFilters = true;
+  }
+
+  closeFilters() {
+    this.showFilters = false;
+  }
+
+  clearFilters() {
+    this.selectedBrand = '';
+    this.minPrice = 0;
+    this.maxPrice = 100000;
+    this.minYear = 2010;
+    this.searchRadius = 50;
+    this.applyFilters();
   }
 }

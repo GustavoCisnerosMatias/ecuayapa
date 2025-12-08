@@ -2,7 +2,7 @@
 
 ## 📋 Descripción General
 
-ECUAYAPA es una plataforma e-commerce del Ministerio de Desarrollo Humano para comprar, vender y localizar vehículos en todo Ecuador, con colores oficiales del gobierno.
+ECUAYAPA es una plataforma e-commerce del Ministerio de Desarrollo Humano para comprar, vender y localizar productos en todo Ecuador, con colores oficiales del gobierno.
 
 ### Colores Oficiales
 
@@ -30,7 +30,7 @@ src/app/
 │   │   ├── banner.html
 │   │   └── banner.scss
 │   ├── products/
-│   │   ├── products.ts        # Grid de vehículos
+│   │   ├── products.ts        # Grid de productos
 │   │   ├── products.html
 │   │   └── products.scss
 │   └── welcome/               # Componente original
@@ -76,17 +76,17 @@ Estilos:
 - Animación de gradiente en el fondo
 - Altura: 400px (ajustable en móviles)
 
-### 3. **Productos (Grid de Vehículos)**
+### 3. **Productos (Grid de Productos)**
 
-- Muestra vehículos disponibles en formato tarjeta
+- Muestra productos disponibles en formato tarjeta
 - Cada tarjeta incluye:
-  - Imagen del vehículo
+  - Imagen del producto
   - Badge "Destacado" (para productos favoritos)
-  - Título, año y kilometraje
+  - Título, año y detalles
   - Ubicación (con icono rojo)
   - Precio en formato USD
   - Botón "Interesado"
-- Filtros por marca y ordenamiento
+- Filtros por categoría y ordenamiento
 - Efecto hover con zoom en imagen
 - Grid responsivo (3 columnas en desktop, 1 en móvil)
 
@@ -109,11 +109,11 @@ Estilos:
 
 ### Página: `/vender` (Vender)
 
-- Formulario para publicar vehículo
+- Formulario para publicar producto
 - Campos:
-  - Marca y modelo
+  - Marca/Categoría y modelo
   - Año y precio
-  - Kilometraje
+  - Detalles
   - Ubicación (dropdown de provincias)
   - Descripción
   - Carga de fotos
@@ -121,14 +121,32 @@ Estilos:
 
 ### Página: `/mapa` (Ver en Mapa)
 
-- Mapa interactivo con Leaflet
-- Marcadores con información de vehículos
-- Popup con detalles al hacer clic
-- Ubicaciones predefinidas en principales ciudades:
-  - Quito
-  - Guayaquil
-  - Cuenca
-  - Ambato
+- **Mapa interactivo con Leaflet (100% Responsivo)**
+- **Layout 2 Columnas (Desktop)**:
+  - Izquierda: Mapa interactivo (60-70% ancho)
+  - Derecha: Panel de filtros y resultados (30-40% ancho)
+- **Panel de Filtros**:
+  - Categoría (dropdown dinámico)
+  - Rango de precio (slider)
+  - Rango de año (slider)
+  - Radio de búsqueda geográfica
+- **Panel de Resultados**:
+  - Lista de productos filtrados
+  - Miniatura de imagen
+  - Información: Título, precio, km, ciudad
+  - 2 botones por resultado:
+    - Centrar en mapa (azul)
+    - Contactar (amarillo)
+- **Interactividad**:
+  - Markers en el mapa con información
+  - Click en marker: muestra popup con detalles
+  - Click en resultado: centra mapa en esa ubicación
+  - Filtros actualizan el mapa en tiempo real
+- **Responsivo**:
+  - Desktop (1200px+): 2 columnas, altura mapa 400px
+  - Tablet (768px-1199px): 1 columna, altura mapa 300px
+  - Mobile (480px-767px): 1 columna, altura mapa 250px
+  - Mini Mobile (<480px): Layout optimizado, altura mapa 250px
 
 ---
 
@@ -140,7 +158,7 @@ Estilos:
   path: '',              → /comprar (redirige)
   path: 'comprar',       → Página de compra
   path: 'vender',        → Formulario de venta
-  path: 'mapa',          → Vista de mapa
+  path: 'mapa',          → Vista de mapa interactivo
   path: '**'             → Redirige a /comprar
 }
 ```
@@ -171,11 +189,12 @@ Estilos:
 
 ---
 
-## 📱 Responsividad
+## 📱 Responsividad (100% Responsivo)
 
-- **Desktop**: Layout completo, 3 columnas en grid
-- **Tablet**: 2 columnas, ajustes de padding
-- **Mobile**: 1 columna, font sizes reducidos, hamburger menu
+- **Desktop (1200px+)**: Layout completo, 3 columnas en grid
+- **Tablet (768px-1199px)**: 2 columnas, ajustes de padding
+- **Mobile (480px-767px)**: 1 columna, font sizes reducidos
+- **Mini Mobile (<480px)**: Diseño ultra comprimido, optimizado para pantallas muy pequeñas
 
 ---
 
@@ -185,6 +204,7 @@ Estilos:
 {
   "@angular/core": "^21.0.0",
   "@angular/router": "^21.0.0",
+  "@angular/forms": "^21.0.0",
   "leaflet": "^1.9.4",
   "@fortawesome/fontawesome-free": "^7.1.0",
   "sweetalert2": "^11.26.3"
@@ -201,6 +221,8 @@ Estilos:
 4. **Mapas Integrados**: Leaflet para visualización geográfica
 5. **Formularios**: Validación y manejo de datos
 6. **Icons**: Font Awesome para iconografía consistente
+7. **100% Responsivo**: Funciona perfectamente en todos los dispositivos
+8. **Mapa Interactivo**: Filtros dinámicos, búsqueda geográfica, markers interactivos
 
 ---
 
