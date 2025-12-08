@@ -1,5 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
+import { ProductService } from '../../services/product.service';
+import { LocationService } from '../../services/location.service';
 
 @Component({
   selector: 'app-products',
@@ -8,8 +11,8 @@ import { CommonModule } from '@angular/common';
   templateUrl: './products.html',
   styleUrl: './products.scss',
 })
-export class ProductsComponent {
-  products = [
+export class ProductsComponent implements OnInit {
+  allProducts = [
     {
       id: 1,
       title: 'Camiseta Premium Azul',
@@ -71,6 +74,38 @@ export class ProductsComponent {
       image: 'https://via.placeholder.com/300x200?text=Cafe',
     },
   ];
+
+  products = this.allProducts;
+  selectedProvince: string | null = null;
+
+  constructor(
+    private productService: ProductService,
+    private locationService: LocationService,
+    private route: ActivatedRoute
+  ) {}
+
+  ngOnInit() {
+    // Buscar provincia en query params
+    this.route.queryParams.subscribe((params) => {
+      if (params['provincia']) {
+        this.selectedProvince = params['provincia'];
+        this.filterByProvince();
+      } else {
+        this.products = this.allProducts;
+      }
+    });
+  }
+
+  filterByProvince() {
+    if (this.selectedProvince) {
+      this.products = this.productService.highlightProductsByProvince(
+        this.allProducts,
+        this.selectedProvince
+      );
+    } else {
+      this.products = this.allProducts;
+    }
+  }
 
   formatPrice(price: number): string {
     return new Intl.NumberFormat('es-EC', { style: 'currency', currency: 'USD' }).format(price);

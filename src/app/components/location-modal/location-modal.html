@@ -1,0 +1,75 @@
+<div *ngIf="showModal$ | async" class="location-modal-overlay" (click)="closeModal()">
+  <div class="location-modal" (click)="$event.stopPropagation()">
+    <!-- Header -->
+    <div class="modal-header">
+      <h2>¿De dónde eres?</h2>
+      <p>Selecciona tu ubicación para encontrar productos cercanos</p>
+      <button class="btn-close" (click)="closeModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <!-- Content -->
+    <div class="modal-content">
+      <!-- Quick Actions -->
+      <div class="quick-actions">
+        <button class="action-btn location-btn" (click)="useCurrentLocation()">
+          <i class="fas fa-location-dot"></i>
+          <span>Usar Mi Ubicación</span>
+          <small>Detectar automáticamente</small>
+        </button>
+        <button
+          class="action-btn province-btn"
+          (click)="showProvinceSelector = !showProvinceSelector"
+        >
+          <i class="fas fa-map-pin"></i>
+          <span>Seleccionar Provincia</span>
+          <small>Elegir manualmente</small>
+        </button>
+      </div>
+
+      <!-- Province Selector -->
+      <div *ngIf="showProvinceSelector" class="province-selector">
+        <!-- Region Tabs -->
+        <div class="region-tabs">
+          <button
+            *ngFor="let region of regions"
+            class="region-tab"
+            [class.active]="selectedRegion === region"
+            (click)="selectedRegion = region"
+          >
+            {{ region }}
+          </button>
+        </div>
+
+        <!-- Provinces Grid -->
+        <div class="provinces-grid">
+          <button
+            *ngFor="let province of getProvincesByRegion(selectedRegion)"
+            class="province-card"
+            (click)="selectProvince(province)"
+          >
+            <div class="province-icon">
+              <i [ngClass]="'fas fa-' + province.icon"></i>
+            </div>
+            <span class="province-name">{{ province.name }}</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div *ngIf="loading" class="loading-state">
+        <div class="spinner"></div>
+        <p>Detectando ubicación...</p>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="modal-footer">
+      <p class="info-text">
+        <i class="fas fa-shield-alt"></i> Tu ubicación es privada y solo se usa para filtrar
+        productos
+      </p>
+    </div>
+  </div>
+</div>

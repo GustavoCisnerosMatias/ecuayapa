@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { LocationService } from '../../services/location.service';
 
 @Component({
   selector: 'app-banner',
@@ -15,10 +16,9 @@ export class BannerComponent {
     cta: 'Explorar Ahora',
   };
 
-  scrollToProducts() {
-    const productsSection = document.querySelector('.products-section');
-    if (productsSection) {
-      productsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+  constructor(private locationService: LocationService) {}
+
+  openLocationModal() {
+    this.locationService.openLocationModal();
   }
 }
