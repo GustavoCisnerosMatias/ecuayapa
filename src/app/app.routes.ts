@@ -1,13 +1,28 @@
 import { Routes } from '@angular/router';
-import{ Welcome as WelcomeMapComponent} from './components/welcome/welcome';
+import { ComprarComponent } from './pages/comprar';
+import { VenderComponent } from './pages/vender';
+import { MapaComponent } from './pages/mapa';
 
 export const routes: Routes = [
   {
     path: '',
-    component: WelcomeMapComponent,   // Página inicial
+    redirectTo: '/comprar',
+    pathMatch: 'full',
+  },
+  {
+    path: 'comprar',
+    component: ComprarComponent,
+  },
+  {
+    path: 'vender',
+    component: VenderComponent,
+  },
+  {
+    path: 'mapa',
+    component: MapaComponent,
   },
   {
     path: '**',
-    redirectTo: ''
-  }
+    redirectTo: '/comprar',
+  },
 ];

@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { HeaderComponent } from './components/header/header';
@@ -11,5 +11,5 @@ import { FooterComponent } from './components/footer/footer';
   styleUrl: './app.scss',
 })
 export class App {
-  protected readonly title = signal('ecuayapa');
+  protected readonly title = 'ecuayapa';
 }

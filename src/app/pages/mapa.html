@@ -1,0 +1,110 @@
+<section class="mapa-section">
+  <div class="mapa-header">
+    <h1>Vehículos en el Mapa</h1>
+    <p>Localiza autos disponibles en Ecuador</p>
+  </div>
+
+  <div class="mapa-container">
+    <!-- Left Column: Map -->
+    <div class="map-column">
+      <div id="map" class="map-display"></div>
+    </div>
+
+    <!-- Right Column: Filters and Results -->
+    <div class="filters-column">
+      <!-- Filters Panel -->
+      <div class="filters-panel">
+        <h3>Filtros</h3>
+
+        <div class="filter-group">
+          <label for="brand-filter">Marca</label>
+          <select [(ngModel)]="selectedBrand" (change)="applyFilters()" id="brand-filter">
+            <option value="">Todas las marcas</option>
+            <option *ngFor="let brand of getBrands()" [value]="brand">{{ brand }}</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label for="price-min">Precio Mínimo: {{ formatPrice(minPrice) }}</label>
+          <input
+            [(ngModel)]="minPrice"
+            (change)="applyFilters()"
+            type="range"
+            id="price-min"
+            min="0"
+            max="100000"
+            step="1000"
+          />
+        </div>
+
+        <div class="filter-group">
+          <label for="price-max">Precio Máximo: {{ formatPrice(maxPrice) }}</label>
+          <input
+            [(ngModel)]="maxPrice"
+            (change)="applyFilters()"
+            type="range"
+            id="price-max"
+            min="0"
+            max="100000"
+            step="1000"
+          />
+        </div>
+
+        <div class="filter-group">
+          <label for="year-min">Año Mínimo: {{ minYear }}</label>
+          <input
+            [(ngModel)]="minYear"
+            (change)="applyFilters()"
+            type="range"
+            id="year-min"
+            min="2010"
+            max="2024"
+          />
+        </div>
+
+        <div class="filter-group">
+          <label for="radius">Radio de Búsqueda: {{ searchRadius }} km</label>
+          <input
+            [(ngModel)]="searchRadius"
+            type="range"
+            id="radius"
+            min="10"
+            max="500"
+            step="10"
+          />
+        </div>
+      </div>
+
+      <!-- Results Panel -->
+      <div class="results-panel">
+        <h3>Resultados ({{ filteredVehicles.length }})</h3>
+
+        <div *ngIf="filteredVehicles.length === 0" class="no-results">
+          <p>No hay vehículos que coincidan con tus filtros.</p>
+        </div>
+
+        <div *ngFor="let vehicle of filteredVehicles" class="result-item">
+          <img [src]="vehicle.image" [alt]="vehicle.title" class="result-image" />
+
+          <div class="result-info">
+            <h4>{{ vehicle.title }}</h4>
+            <p class="result-price">{{ formatPrice(vehicle.price) }}</p>
+            <p class="result-specs">
+              <span><i class="fas fa-road"></i> {{ vehicle.mileage.toLocaleString() }} km</span>
+              <span><i class="fas fa-map-marker-alt"></i> {{ vehicle.city }}</span>
+            </p>
+          </div>
+
+          <div class="result-actions">
+            <button (click)="centerOnVehicle(vehicle)" class="btn-center" title="Centrar en mapa">
+              <i class="fas fa-bullseye"></i>
+            </button>
+            <button (click)="contactVehicle(vehicle)" class="btn-contact" title="Contactar">
+              <i class="fas fa-phone"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
