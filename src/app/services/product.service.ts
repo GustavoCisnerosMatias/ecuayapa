@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { LocationService, Province } from './location.service';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface Product {
@@ -42,7 +42,7 @@ export class ProductService {
 
   constructor(private locationService: LocationService, private http: HttpClient) {}
 
-  filterProductsByProvince(products: Product[], provinceId?: string): Product[] {
+  filterProductsByProvince(products: Product[], provinceId?: number): Product[] {
     if (!provinceId) {
       return products;
     }
@@ -56,6 +56,8 @@ export class ProductService {
     if (!selectedProvince) {
       return products;
     }
+
+    
     return this.filterProductsByProvince(products, selectedProvince.id);
   }
 
@@ -72,7 +74,71 @@ export class ProductService {
   }
 
 
-  getProductsByProvince(id_province: number): Observable<Product[]> {
-    return this.http.get<Product[]>(`http://localhost:8000/api/products.php?id_province=${id_province}`);
+
+  private baseUrl = 'http://localhost:8000/api/products.php';
+
+
+
+  // Traer productos por provincia
+  getProductsByProvince1(id_province: number): Observable<Product[]> {
+    return this.http.get<Product[]>(`${this.baseUrl}?id_province=${id_province}`);
+  }
+
+  getProductsByProvince3(id_province: number): Observable<any> {
+    const soapBody = `
+      <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ecu="http://impl.service.siimies.web.ecuayapa/">
+        <soapenv:Header/>
+        <soapenv:Body>
+          <ecu:consultarEmprendedoresConProductosPaginado/>
+        </soapenv:Body>
+      </soapenv:Envelope>
+    `;
+
+    const headers = new HttpHeaders({
+      'Content-Type': 'text/xml',
+      // 'Authorization': 'Basic ' + btoa('usuario:password') // si necesitas auth
+    });
+
+    // Ruta del endpoint SOAP
+    return this.http.post('http://localhost:8080/ecuayapa-ws/ecuayapa-service', soapBody, { headers, responseType: 'text' });
+  }
+
+
+  getProductsByProvince(id_province: number): Observable<any> {
+  const soapBody = `
+    <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ecu="http://impl.service.siimies.web.ecuayapa/">
+      <soapenv:Header/>
+      <soapenv:Body>
+        <ecu:consultarEmprendedoresConProductosPaginado/>
+      </soapenv:Body>
+    </soapenv:Envelope>
+  `;
+
+  const headers = new HttpHeaders({
+    'Content-Type': 'text/xml',
+    // 'Authorization': 'Basic ' + btoa('usuario:password') // si tu servicio requiere autenticación
+  });
+
+  return this.http.post('http://localhost:8080/ecuayapa-ws/ecuayapa-service', soapBody, { headers, responseType: 'text' });
+}
+
+
+
+getEmprendedoresConProductosPaginado(): Observable<string> {
+  const soapBody = `
+    <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ecu="http://impl.service.siimies.web.ecuayapa/">
+      <soapenv:Header/>
+      <soapenv:Body>
+        <ecu:consultarEmprendedoresConProductosPaginado/>
+      </soapenv:Body>
+    </soapenv:Envelope>
+  `;
+  const headers = new HttpHeaders({ 'Content-Type': 'text/xml' });
+  return this.http.post('http://localhost:8080/ecuayapa-ws/ecuayapa-service', soapBody, { headers, responseType: 'text' });
+}
+
+    // Traer un producto por su ID
+  getProductById(id_product: string): Observable<{ data: Product }> {
+    return this.http.get<{ data: Product }>(`${this.baseUrl}?id_product=${id_product}`);
   }
 }

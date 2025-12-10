@@ -1,10 +1,18 @@
 <section
-  class="relative w-full min-h-[calc(100vh-140px)] flex items-center justify-center overflow-hidden
-        bg-white"
+  class="relative w-screen max-w-full min-h-[calc(100vh-140px)] flex items-center justify-center overflow-hidden bg-white"
 >
+  <!-- Pilares como marca de agua en esquina inferior derecha - PRIMERO para que esté al fondo -->
+  <div class="pilares-watermark">
+    <img 
+      src="assets/pilares2.png" 
+      alt="Pilares Ecuador" 
+      class="pilares-image"
+    />
+  </div>
+
   <!-- Glow orbs decorativos -->
-  <div class="pointer-events-none absolute -top-24 -left-24 h-72 w-72 rounded-full bg-primary/5 blur-3xl animate-pulse-slow"></div>
-  <div class="pointer-events-none absolute -bottom-16 -right-10 h-64 w-64 rounded-full bg-secondary/5 blur-3xl animate-float-slow"></div>
+  <div class="pointer-events-none absolute top-0 left-0 h-72 w-72 rounded-full bg-primary/5 blur-3xl animate-pulse-slow opacity-50"></div>
+  <div class="pointer-events-none absolute bottom-0 right-0 h-64 w-64 rounded-full bg-secondary/5 blur-3xl animate-float-slow opacity-50"></div>
 
   <!-- Patrón overlay -->
   <div
@@ -14,84 +22,88 @@
   ></div>
 
   <!-- Contenido principal tipo dashboard -->
-<div class="relative z-10 mx-auto flex max-w-6xl flex-col gap-16 px-4 sm:px-8 lg:flex-row lg:items-center lg:gap-16">
+<div class="relative z-10 mx-auto flex w-full max-w-full lg:max-w-6xl flex-col gap-8 px-3 sm:px-4 md:px-6 lg:flex-row lg:items-center lg:gap-10 xl:gap-12">
     <!-- Logo épico lado izquierdo -->
-    <div class="absolute -top-12 -left-12 lg:relative lg:top-0 lg:left-0 lg:flex lg:justify-end lg:flex-1">
-      <div class="relative">
+    <div class="flex justify-center lg:justify-center lg:flex-shrink-0 w-full lg:w-auto">
+      <div class="relative w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 lg:w-56 lg:h-56 xl:w-64 xl:h-64">
         <!-- Glow de fondo para el logo -->
-        <div class="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/10 rounded-full blur-3xl animate-pulse-slow" style="width: 280px; height: 280px; top: 50%; left: 50%; transform: translate(-50%, -50%);"></div>
+        <div class="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/10 rounded-full blur-3xl animate-pulse-slow" style="transform: translate(-50%, -50%); top: 50%; left: 50%; width: 100%; height: 100%;"></div>
         <!-- Anillo rotatorio -->
-        <div class="absolute inset-0 rounded-full border-2 border-transparent border-t-primary/40 border-r-primary/20 animate-spin" style="width: 280px; height: 280px; animation-duration: 20s;"></div>
+        <div class="absolute inset-0 rounded-full border-2 border-transparent border-t-primary/40 border-r-primary/20 animate-spin" style="animation-duration: 20s;"></div>
         <!-- Logo -->
         <img 
           src="assets/logo.png" 
           alt="ECUAYAPA Logo" 
-          class="relative w-48 h-48 sm:w-56 sm:h-56 lg:w-64 lg:h-64 drop-shadow-2xl animate-float-slow"
+          class="relative w-full h-full object-contain drop-shadow-2xl animate-float-slow"
         />
 
       </div>
     </div>
     
     <!-- Texto + CTA -->
-    <div class="text-center lg:text-left text-primary space-y-6 animate-slide-up lg:flex-1">
-      <div class="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1 text-xs sm:text-sm backdrop-blur-md border border-primary/20 shadow-lg animate-badge-pop">
-        <span class="h-2 w-2 rounded-full bg-emerald-400 animate-ping-once"></span>
-        <span class="font-semibold tracking-wide text-primary">Nuevo en ECUAYAPA</span>
-        <span class="text-primary/70">Explora oportunidades cerca de ti</span>
+    <div class="text-center lg:text-left text-primary space-y-4 sm:space-y-6 animate-slide-up lg:flex-1 w-full lg:w-auto">
+      <div class="inline-flex items-center gap-1 sm:gap-2 rounded-full bg-primary/10 px-3 py-1 sm:px-4 text-xs backdrop-blur-md border border-primary/20 shadow-lg animate-badge-pop flex-wrap justify-center">
+        <span class="h-2 w-2 rounded-full bg-emerald-400 animate-ping-once flex-shrink-0"></span>
+        <span class="font-semibold tracking-wide text-primary whitespace-nowrap">Nuevo en ECUAYAPA</span>
+        <span class="text-primary/70 hidden sm:inline">Explora oportunidades cerca de ti</span>
       </div>
 
-      <h2 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight drop-shadow-2xl">
+      <h2 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-extrabold tracking-tight drop-shadow-2xl px-2">
         {{ bannerText.title }}
       </h2>
 
-      <p class="text-base sm:text-lg lg:text-xl text-primary/90 max-w-xl mx-auto lg:mx-0">
+      <p class="text-sm sm:text-base lg:text-lg xl:text-xl text-primary/90 max-w-xl mx-auto lg:mx-0 px-4 sm:px-2">
         {{ bannerText.subtitle }}
       </p>
 
-      <div class="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start">
+      <div class="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 justify-center lg:justify-start px-4 sm:px-0">
         <button
-          (click)="openLocationModal()"
-          class="group inline-flex items-center gap-3 rounded-full bg-primary text-white font-semibold
-                 px-7 sm:px-9 py-3 sm:py-3.5 text-sm sm:text-base shadow-xl
+          (click)="navigateToComprar()"
+          class="group inline-flex items-center gap-2 sm:gap-3 rounded-full bg-primary text-white font-semibold
+                 px-5 sm:px-7 lg:px-9 py-2.5 sm:py-3 lg:py-3.5 text-xs sm:text-sm lg:text-base shadow-xl
                  hover:bg-secondary hover:text-white hover:shadow-[0_18px_40px_rgba(0,0,0,0.35)]
-                 transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-[1.02]"
+                 transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-[1.02] w-full sm:w-auto"
         >
           <span>{{ bannerText.cta }}</span>
           <span
-            class="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-white
-                   group-hover:bg-white group-hover:text-primary transition-all duration-300"
+            class="flex h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 items-center justify-center rounded-full bg-white/20 text-white
+                   group-hover:bg-white group-hover:text-primary transition-all duration-300 flex-shrink-0"
           >
-            <i class="fas fa-arrow-right text-sm group-hover:translate-x-0.5 transition-transform duration-300"></i>
+            <i class="fas fa-arrow-right text-xs sm:text-sm group-hover:translate-x-0.5 transition-transform duration-300"></i>
           </span>
         </button>
 
         <button
-          class="inline-flex items-center gap-2 text-primary/80 hover:text-primary text-sm sm:text-base
-                 transition-colors duration-300"
+          (click)="navigateToVender()"
+          class="group inline-flex items-center gap-2 text-primary font-semibold text-xs sm:text-sm lg:text-base
+                 px-5 sm:px-7 lg:px-9 py-2.5 sm:py-3 lg:py-3.5 rounded-full
+                 border-2 border-primary hover:border-secondary hover:text-secondary
+                 transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-[1.02]
+                 w-full sm:w-auto justify-center"
         >
-          <i class="fas fa-play-circle text-lg sm:text-xl animate-pulse-slow"></i>
+          <i class="fas fa-store text-base sm:text-lg lg:text-xl group-hover:rotate-12 transition-transform duration-300"></i>
           <span>Vender</span>
         </button>
       </div>
 
       <!-- Mini métricas -->
-      <div class="mt-4 flex flex-wrap justify-center lg:justify-start gap-4 text-xs sm:text-sm text-primary/80">
-        <div class="flex items-center gap-2">
-          <span class="h-2 w-2 rounded-full bg-emerald-400"></span>
-          <span>+10k productos activos</span>
+      <div class="mt-2 sm:mt-4 flex flex-wrap justify-center lg:justify-start gap-3 sm:gap-4 text-xs text-primary/80 px-4 sm:px-0">
+        <div class="flex items-center gap-1.5 sm:gap-2">
+          <span class="h-2 w-2 rounded-full bg-emerald-400 flex-shrink-0"></span>
+          <span class="whitespace-nowrap">+10k productos activos</span>
         </div>
-        <div class="flex items-center gap-2">
-          <span class="h-2 w-2 rounded-full bg-sky-400"></span>
-          <span>Compradores en todo Ecuador</span>
+        <div class="flex items-center gap-1.5 sm:gap-2">
+          <span class="h-2 w-2 rounded-full bg-sky-400 flex-shrink-0"></span>
+          <span class="whitespace-nowrap">Compradores en todo Ecuador</span>
         </div>
       </div>
     </div>
 
     <!-- Tarjetas tipo dashboard -->
     <div
-      class="hidden lg:flex relative flex-1 justify-center lg:justify-end animate-slide-up-delayed"
+      class="hidden lg:flex relative lg:flex-shrink-0 justify-center animate-slide-up-delayed"
     >
-      <div class="relative grid grid-cols-1 sm:grid-cols-2 gap-5 max-w-sm w-full">
+      <div class="relative grid grid-cols-2 gap-4 w-full max-w-md">
         <!-- Card 1 -->
         <div
           class="group rounded-3xl bg-primary/10 border border-primary/20 shadow-2xl backdrop-blur-xl

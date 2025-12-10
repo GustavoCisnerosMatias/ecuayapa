@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LocationService } from '../../services/location.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-banner',
@@ -16,9 +17,17 @@ export class BannerComponent {
     cta: 'Comprar',
   };
 
-  constructor(private locationService: LocationService) {}
+  constructor(private locationService: LocationService, private router: Router) {}
 
   openLocationModal() {
     this.locationService.openLocationModal();
+  }
+
+  navigateToComprar() {
+    this.router.navigate(['/comprar']);
+  }
+
+  navigateToVender() {
+    this.router.navigate(['/vender']);
   }
 }

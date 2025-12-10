@@ -1,4 +1,4 @@
-<div class="product-detail-container">
+<!-- <div class="product-detail-container">
   <div class="product-detail-header">
     <button class="btn-back" (click)="goBack()">
       <i class="fas fa-arrow-left"></i> Volver
@@ -6,12 +6,10 @@
   </div>
 
   <div *ngIf="product" class="product-detail-content">
-    <!-- Imagen del Producto -->
     <div class="product-detail-image">
       <img [src]="product.image" [alt]="product.title" />
     </div>
 
-    <!-- Información del Producto -->
     <div class="product-detail-info">
       <h1 class="product-title">{{ product.title }}</h1>
       <div class="product-price">{{ formatPrice(product.price) }}</div>
@@ -24,7 +22,6 @@
         <p>{{ product.description }}</p>
       </div>
 
-      <!-- Información del Emprendedor -->
       <div class="entrepreneur-section">
         <h3>Emprendedor</h3>
         <div class="entrepreneur-info">
@@ -33,7 +30,6 @@
         </div>
       </div>
 
-      <!-- Botones de Acción -->
       <div class="action-buttons">
         <button class="btn-contact" (click)="contactWhatsApp()">
           <i class="fab fa-whatsapp"></i> Contactar por WhatsApp
@@ -49,7 +45,6 @@
     <p>Producto no encontrado</p>
   </div>
 
-  <!-- Modal de Compartir -->
   <div *ngIf="showShareModal" class="share-modal-overlay" (click)="closeShareModal()">
     <div class="share-modal" (click)="$event.stopPropagation()">
       <div class="modal-header">
@@ -92,4 +87,108 @@
       </div>
     </div>
   </div>
+</div> -->
+<div class="product-detail-container">
+  <div class="product-detail-header">
+    <button class="btn-back" (click)="goBack()">
+      <i class="fas fa-arrow-left"></i> Volver
+    </button>
+  </div>
+
+  <ng-container *ngIf="product$ | async as product; else loading">
+    <div class="product-detail-content">
+      <!-- Imagen del Producto -->
+      <div class="product-detail-image">
+        <img [src]="product.image" [alt]="product.title" />
+      </div>
+
+      <!-- Información del Producto -->
+      <div class="product-detail-info">
+        <h1 class="product-title">{{ product.title }}</h1>
+        <div class="product-price">{{ formatPrice(product.price) }}</div>
+        <div class="product-location">
+          <i class="fas fa-map-marker-alt"></i> {{ product.location }}
+        </div>
+
+        <div class="product-description">
+          <h3>Descripción</h3>
+          <p>{{ product.description }}</p>
+        </div>
+
+        <!-- Información del Emprendedor -->
+        <div class="entrepreneur-section">
+          <h3>Emprendedor</h3>
+          <div class="entrepreneur-info">
+            <h4>{{ product.entrepreneurName }}</h4>
+            <p class="entrepreneur-story">{{ product.entrepreneurStory }}</p>
+          </div>
+        </div>
+
+        <!-- Botones de Acción -->
+        <div class="action-buttons">
+          <button class="btn-contact" (click)="contactWhatsApp(product)">
+            <i class="fab fa-whatsapp"></i> Contactar por WhatsApp
+          </button>
+          <button class="btn-share" (click)="openShareModal()">
+            <i class="fas fa-share-alt"></i> Compartir
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de Compartir -->
+    <div *ngIf="showShareModal" class="share-modal-overlay" (click)="closeShareModal()">
+      <div class="share-modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>Compartir Producto</h2>
+          <button class="btn-close" (click)="closeShareModal()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <div class="share-info">
+            <img [src]="product.image" [alt]="product.title" class="share-product-image" />
+            <div class="share-product-info">
+              <h3>{{ product.title }}</h3>
+              <p class="share-price">{{ formatPrice(product.price || 0) }}</p>
+              <p class="share-entrepreneur">
+                Emprendedor: {{ product.NamePerson }}
+                <strong>{{ product.DescriptionEmpre }}</strong>
+
+
+
+                
+              </p>
+            </div>
+          </div>
+
+          <div class="share-link-section">
+            <label>Link para compartir:</label>
+            <div class="share-link-container">
+              <input type="text" [value]="shareLink" readonly />
+              <button class="btn-copy" (click)="copyLink()">
+                <i class="fas fa-copy"></i> Copiar
+              </button>
+            </div>
+          </div>
+
+          <div class="share-actions">
+            <button class="btn-whatsapp" (click)="contactWhatsApp(product)">
+              <i class="fab fa-whatsapp"></i> Enviar por WhatsApp
+            </button>
+            <button class="btn-close-modal" (click)="closeShareModal()">
+              Cerrar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+  <ng-template #loading>
+    <div class="product-not-found">
+      <p>Cargando producto...</p>
+    </div>
+  </ng-template>
 </div>

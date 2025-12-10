@@ -45,6 +45,87 @@
   50% { transform: translateY(-4px); }
 }
 
+@keyframes led-sweep {
+  0% {
+    background: linear-gradient(90deg, 
+      transparent 0%, 
+      transparent 20%,
+      rgba(253, 1, 24, 0) 20%,
+      rgba(253, 1, 24, 0.5) 30%,
+      rgba(255, 192, 3, 0.4) 40%,
+      rgba(45, 45, 150, 0.4) 50%,
+      rgba(253, 1, 24, 0.3) 60%,
+      transparent 70%,
+      transparent 100%
+    );
+    background-position: -100% 0;
+    background-size: 200% 100%;
+  }
+  50% {
+    background: linear-gradient(90deg, 
+      transparent 0%, 
+      transparent 20%,
+      rgba(253, 1, 24, 0) 20%,
+      rgba(253, 1, 24, 0.5) 30%,
+      rgba(255, 192, 3, 0.4) 40%,
+      rgba(45, 45, 150, 0.4) 50%,
+      rgba(253, 1, 24, 0.3) 60%,
+      transparent 70%,
+      transparent 100%
+    );
+    background-position: 100% 0;
+    background-size: 200% 100%;
+  }
+  100% {
+    background: linear-gradient(90deg, 
+      transparent 0%, 
+      transparent 20%,
+      rgba(253, 1, 24, 0) 20%,
+      rgba(253, 1, 24, 0.5) 30%,
+      rgba(255, 192, 3, 0.4) 40%,
+      rgba(45, 45, 150, 0.4) 50%,
+      rgba(253, 1, 24, 0.3) 60%,
+      transparent 70%,
+      transparent 100%
+    );
+    background-position: 200% 0;
+    background-size: 200% 100%;
+  }
+}
+
+// .pilares-watermark {
+//   position: absolute;
+//   bottom: 0;
+//   right: 0;
+//   width: 500px;
+//   height: 500px;
+//   pointer-events: none;
+//   z-index: 1;
+//   opacity: 0.35;
+  
+//   @media (max-width: 1024px) {
+//     width: 400px;
+//     height: 400px;
+//   }
+  
+//   @media (max-width: 768px) {
+//     width: 300px;
+//     height: 300px;
+//   }
+  
+//   @media (max-width: 480px) {
+//     width: 220px;
+//     height: 220px;
+//   }
+// }
+
+.pilares-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: bottom right;
+}
+
 .animate-gradient { background-size: 200% 200%; animation: gradient-shift 10s ease-in-out infinite; }
 .animate-slide-up { animation: slide-up 0.8s ease-out both; }
 .animate-slide-up-delayed { animation: slide-up-delayed 1s ease-out 0.15s both; }
@@ -54,3 +135,55 @@
 .animate-ping-once { animation: ping-once 1.2s ease-out 0.3s 1 both; }
 .animate-bar-fill { animation: bar-fill 1.4s ease-out 0.4s forwards; }
 .animate-bounce-soft { animation: bounce-soft 2.2s ease-in-out infinite; }
+.animate-led-sweep { animation: led-sweep 4s ease-in-out infinite; }
+
+// Responsive adjustments
+section {
+  max-width: 100vw !important;
+  width: 100% !important;
+  overflow-x: hidden !important;
+  position: relative;
+}
+
+
+@media (max-width: 1024px) {
+  section {
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .animate-float-slow {
+    animation: float-slow 8s ease-in-out infinite;
+  }
+  
+  section {
+    overflow-x: hidden !important;
+  }
+}
+
+@media (max-width: 480px) {
+  @keyframes float-slow {
+    0%, 100% { transform: translateY(0) scale(0.95); }
+    50% { transform: translateY(-8px) scale(0.95); }
+  }
+  
+  section {
+    padding: 1rem 0.5rem !important;
+  }
+}
+.pilares-watermark {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 500px;
+  height: 500px;
+  pointer-events: none;
+  z-index: -1;        /* clave */
+  opacity: 0.35;
+}
+section {
+  position: relative;
+  z-index: 0;
+}

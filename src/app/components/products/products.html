@@ -1,204 +1,115 @@
-<!-- <section class="products-section">
-  <div class="products-container">
-    <div class="section-header">
-      <div class="section-chip">Catálogo en Ecuador</div>
-      <h2>Productos Disponibles</h2>
-      <p>Explora artículos seleccionados en las principales ciudades del país</p>
-    </div>
 
-    <div class="products-toolbar">
-      <div class="products-counter">
-        <span class="counter-pill">
-          <i class="fas fa-box-open"></i>
-          {{ products.length }} productos encontrados
-        </span>
-        <span class="counter-sub" *ngIf="selectedProvince">
-          Filtrando por <strong>{{ selectedProvince }}</strong>
-        </span>
-      </div>
-      <button class="btn-refresh" (click)="filterByProvince()">
-        <i class="fas fa-sync-alt"></i>
-        Actualizar listado
-      </button>
-    </div>
-
-    <div class="products-grid">
-      <article
-        *ngFor="let product of products"
-        class="product-card"
-        [class.featured]="product.featured"
-      >
-        <div class="product-card-glow"></div>
-
-        <div class="product-badge" *ngIf="product.featured">
-          <i class="fas fa-crown"></i>
-          Destacado
-        </div>
-
-        <div class="product-image">
-          <img
-            [src]="product.image"
-            [alt]="product.title"
-            (error)="onImageError($event)"
-          />
-          <div class="image-fallback">
-            <i class="fas fa-shopping-bag"></i>
-          </div>
-
-          <div class="product-overlay">
-            <button class="btn-view" (click)="viewProduct(product.id)">
-              <i class="fas fa-eye"></i>
-              Ver detalles
-            </button>
-            <button class="btn-contact" (click)="viewProduct(product.id)">
-              <i class="fas fa-comment-alt"></i>
-              Estoy interesado
-            </button>
-          </div>
-        </div>
-
-        <div class="product-info">
-          <div class="product-header">
-            <h3 class="product-title">{{ product.title }}</h3>
-            <span class="product-chip-year">{{ product.year }}</span>
-          </div>
-
-          <div class="product-specs">
-            <div class="spec">
-              <i class="fas fa-map-marker-alt"></i>
-              <span>{{ product.location }}</span>
-            </div>
-            <div class="spec">
-              <i class="fas fa-star"></i>
-              <span>Calidad verificada</span>
-            </div>
-          </div>
-
-          <div class="product-footer">
-            <div class="product-price-block">
-              <div class="product-price">
-                {{ formatPrice(product.price) }}
-              </div>
-              <div class="product-price-note">
-                Precio referencial en Ecuador
-              </div>
-            </div>
-            <button class="btn-primary" (click)="viewProduct(product.id)">
-              <i class="fas fa-shopping-cart"></i>
-              Interesado
-            </button>
-          </div>
-        </div>
-      </article>
-    </div>
-  </div>
-</section> -->
 <section class="products-section">
   <div class="products-container">
 
     <div class="section-header">
-      <div class="section-chip">Catálogo en Ecuador</div>
-      <h2>Productos Disponibles</h2>
-      <p>Explora artículos seleccionados en las principales ciudades del país</p>
+      <div class="section-chip">Productos Disponibles</div>
     </div>
 
     <div class="products-toolbar">
       <div class="products-counter">
         <span class="counter-pill">
           <i class="fas fa-box-open"></i>
-          {{ products.length }} productos encontrados
+          {{ products.length }} productos encontrados en {{selectedProvince}}
         </span>
 
-        <span class="counter-sub" *ngIf="selectedProvince">
-          Filtrando por <strong>{{ selectedProvince }}</strong>
+      </div>
+
+
+    </div>
+
+<div class="products-grid">
+
+  <!-- Placeholder cards mientras carga -->
+  <ng-container *ngIf="products.length === 0">
+    <article class="product-card placeholder" *ngFor="let i of [1,2,3,4,5,6]">
+      <div class="product-card-glow"></div>
+
+      <div class="product-image skeleton-box"></div>
+
+      <div class="product-info">
+        <div class="product-header">
+          <h3 class="product-title skeleton-text"></h3>
+          <span class="product-chip-year skeleton-text"></span>
+        </div>
+        <div class="product-specs">
+          <div class="spec skeleton-text"></div>
+          <div class="spec skeleton-text"></div>
+        </div>
+        <div class="product-footer">
+          <div class="product-price-block">
+            <div class="product-price skeleton-text"></div>
+            <div class="product-price-note skeleton-text"></div>
+          </div>
+          <button class="btn-primary skeleton-button"></button>
+        </div>
+      </div>
+    </article>
+  </ng-container>
+
+  <!-- Productos reales -->
+  <article
+    class="product-card"
+    *ngFor="let product of products"
+    [class.featured]="product.featured">
+
+    <div class="product-card-glow"></div>
+
+    <div class="product-badge" *ngIf="product.featured">
+      <i class="fas fa-crown"></i>
+      Destacado
+    </div>
+
+    <div class="product-image">
+      <img
+        [src]="product.img"
+        [alt]="product.title"
+        (error)="onImageError($event)"
+      />
+      <div class="image-fallback">
+        <i class="fas fa-shopping-bag"></i>
+      </div>
+      <div class="product-overlay">
+        <button class="btn-view" (click)="viewProduct(product.id_product)">
+          <i class="fas fa-eye"></i> Ver detalles
+        </button>
+        <button class="btn-contact" (click)="viewProduct(product.id_product)">
+          <i class="fas fa-comment-alt"></i> Estoy interesado
+        </button>
+      </div>
+    </div>
+
+    <div class="product-info">
+      <div class="product-header">
+        <h3 class="product-title">{{ product.title }}</h3>
+        <span class="product-chip-year" *ngIf="product.year">
+          {{ product.year }}
         </span>
       </div>
 
-      <button class="btn-refresh" (click)="loadProducts()">
-        <i class="fas fa-sync-alt"></i>
-        Actualizar listado
-      </button>
+      <div class="product-specs">
+        <div class="spec">
+          <i class="fas fa-map-marker-alt"></i>
+          <span>{{ product.location }}</span>
+        </div>
+        <div class="spec">
+          <i class="fas fa-star"></i> Calidad verificada
+        </div>
+      </div>
+
+      <div class="product-footer">
+        <div class="product-price-block">
+          <div class="product-price">{{ formatPrice(product.price) }}</div>
+          <div class="product-price-note">Precio referencial en Ecuador</div>
+        </div>
+        <button class="btn-primary" (click)="viewProduct(product.id_product)">
+          <i class="fas fa-shopping-cart"></i> Interesado
+        </button>
+      </div>
     </div>
 
-    <div class="products-grid">
+  </article>
+</div>
 
-      <article
-        class="product-card"
-        *ngFor="let product of products"
-        [class.featured]="product.featured">
-
-        <div class="product-card-glow"></div>
-
-        <div class="product-badge" *ngIf="product.featured">
-          <i class="fas fa-crown"></i>
-          Destacado
-        </div>
-
-        <div class="product-image">
-          <img
-            [src]="product.img"
-            [alt]="product.title"
-            (error)="onImageError($event)"
-          />
-
-          <div class="image-fallback">
-            <i class="fas fa-shopping-bag"></i>
-          </div>
-
-          <div class="product-overlay">
-            <button class="btn-view" (click)="viewProduct(product.id)">
-              <i class="fas fa-eye"></i>
-              Ver detalles
-            </button>
-
-            <button class="btn-contact" (click)="viewProduct(product.id)">
-              <i class="fas fa-comment-alt"></i>
-              Estoy interesado
-            </button>
-          </div>
-        </div>
-
-        <div class="product-info">
-
-          <div class="product-header">
-            <h3 class="product-title">{{ product.title }}</h3>
-            <span class="product-chip-year" *ngIf="product.year">
-              {{ product.year }}
-            </span>
-          </div>
-
-          <div class="product-specs">
-            <div class="spec">
-              <i class="fas fa-map-marker-alt"></i>
-              <span>{{ product.location }}</span>
-            </div>
-
-            <div class="spec">
-              <i class="fas fa-star"></i>
-              <span>Calidad verificada</span>
-            </div>
-          </div>
-
-          <div class="product-footer">
-            <div class="product-price-block">
-              <div class="product-price">
-                {{ formatPrice(product.price) }}
-              </div>
-              <div class="product-price-note">
-                Precio referencial en Ecuador
-              </div>
-            </div>
-
-            <button class="btn-primary" (click)="viewProduct(product.id)">
-              <i class="fas fa-shopping-cart"></i>
-              Interesado
-            </button>
-
-          </div>
-
-        </div>
-
-      </article>
-    </div>
   </div>
 </section>

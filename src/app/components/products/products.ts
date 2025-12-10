@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ProductService } from '../../services/product.service';
 import { LocationService } from '../../services/location.service';
 import { Observable } from 'rxjs';
+import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'app-products',
@@ -21,13 +22,21 @@ export class ProductsComponent implements OnInit {
   constructor(
     private productService: ProductService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router, 
+    private cdr: ChangeDetectorRef,
+    private locationService: LocationService
+
   ) {}
 
 ngOnInit(): void {
+  
+  this.openLocationModal();
   this.loadProducts();
  
 }
+  openLocationModal() {
+    this.locationService.openLocationModal();
+  }
 
 
 loadProducts(){
@@ -37,30 +46,31 @@ loadProducts(){
   });
 
   // cargar productos
-  this.productService.getProductsByProvince(1).subscribe({
+  this.productService.getEmprendedoresConProductosPaginado().subscribe({
     next: (result: any) => {
 
+      console.log(result)
 
+      // if (result?.data) {
+      //   this.allProducts = result.data.map((p: any) => ({
+      //     ...p,
+      //     price: Number(p.price),
 
-      if (result?.data) {
-        this.allProducts = result.data.map((p: any) => ({
-          ...p,
-          price: Number(p.price),
+      //     // ruta completa para que funcione localmente
+      //     img: p.img ? `http://localhost:8000/uploads/${p.img}` : null,
 
-          // ruta completa para que funcione localmente
-          img: p.img ? `http://localhost:8000/uploads/${p.img}` : null,
+      //     // campos que pide tu HTML pero no existen en backend
+      //     location: p.address ?? 'Sin dirección',
+      //     year: new Date().getFullYear(),
+      //     featured: false
+      //   }));
 
-          // campos que pide tu HTML pero no existen en backend
-          location: p.address ?? 'Sin dirección',
-          year: new Date().getFullYear(),
-          featured: false
-        }));
+      //   // lista inicial
+      //   this.products = [...this.allProducts];
+      //   this.cdr.detectChanges(); 
 
-        // lista inicial
-        this.products = [...this.allProducts];
-
-        console.log("Productos cargados:", this.products);
-      }
+      //   console.log("Productos cargados:", this.products);
+      //}
     },
     error: (err) => {
       console.error("Error cargando productos:", err);
