@@ -55,6 +55,32 @@
             <span class="province-name">{{ province.name }}</span>
           </button>
         </div>
+
+        <!-- Map Toggle Button -->
+        <div class="map-toggle-section">
+          <button class="btn-map-toggle" (click)="toggleMapView()">
+            <i class="fas" [class.fa-map]="!showMapView" [class.fa-list]="showMapView"></i>
+            {{ showMapView ? 'Ocultar mapa' : 'Seleccionar desde mapa' }}
+            <i class="fas fa-chevron-down toggle-arrow" [class.rotated]="showMapView"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Map View (Expandable) -->
+      <div class="map-section" [class.expanded]="showMapView">
+        <div class="map-content">
+          <div *ngIf="showMapView" class="map-header">
+            <p><i class="fas fa-mouse-pointer"></i> Haz clic en el mapa para marcar tu ubicación exacta</p>
+          </div>
+          
+          <div id="map-container" class="map-container" *ngIf="showMapView"></div>
+          
+          <!-- Provincia seleccionada desde mapa -->
+          <div *ngIf="selectedProvince && showMapView" class="selected-province-info">
+            <i class="fas fa-map-pin"></i>
+            <span>{{ selectedProvince.name }} seleccionado</span>
+          </div>
+        </div>
       </div>
 
       <!-- Loading State -->
@@ -67,9 +93,10 @@
     <!-- Footer -->
     <div class="modal-footer">
       <p class="info-text">
-        <i class="fas fa-shield-alt"></i> Tu ubicación es privada y solo se usa para filtrar
-        productos
+        <i class="fas fa-shield-alt"></i> Tu ubicación es privada y solo se usa para filtrar productos
       </p>
     </div>
   </div>
 </div>
+
+

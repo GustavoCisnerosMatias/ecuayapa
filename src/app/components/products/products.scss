@@ -5,6 +5,7 @@
   max-width: 100vw;
   overflow-x: hidden;
   box-sizing: border-box;
+  min-height: calc(100vh - 120px); /* Mantener altura mínima para empujar el footer */
 }
 
 .products-container {
@@ -414,6 +415,42 @@
 
   .btn-primary {
     width: 100%;
+  }
+}
+
+/* Empty State */
+.empty-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 6rem 2rem;
+  max-width: 500px;
+  margin: 0 auto;
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  
+  .empty-icon {
+    margin-bottom: 1.5rem;
+    
+    i {
+      font-size: 4rem;
+      color: #e2e8f0;
+    }
+  }
+  
+  h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.75rem;
+  }
+  
+  p {
+    font-size: 1rem;
+    color: #6b7280;
+    line-height: 1.5;
+    margin: 0;
   }
 }
 

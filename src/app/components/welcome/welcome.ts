@@ -269,6 +269,7 @@ export class Welcome implements OnInit {
         this.ngZone.run(() => {
           this.lat = this.round(e.latlng.lat);
           this.lng = this.round(e.latlng.lng);
+          console.log(`Ubicación seleccionada: ${this.lat}, ${this.lng}`);
           this.pointSelected = true;
           this.setMarker(this.lat, this.lng, true);
           this.updateNearbyLocations();
@@ -461,6 +462,7 @@ export class Welcome implements OnInit {
       circleRadius: this.circleRadius,
       timestamp: new Date().toISOString()
     };
+    console.log(locationData)
     localStorage.setItem('ecuayapa_location', JSON.stringify(locationData));
     
     // Mostrar alerta de éxito y redirigir a comprar

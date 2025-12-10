@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ProductService } from '../../services/product.service';
-import { LocationService } from '../../services/location.service';
+import { LocationService, Province } from '../../services/location.service';
 import { Observable } from 'rxjs';
 import { ChangeDetectorRef } from '@angular/core';
 
@@ -16,8 +16,10 @@ import { ChangeDetectorRef } from '@angular/core';
 export class ProductsComponent implements OnInit {
     allProducts: any[] = [];
   products: any[] = [];
+  isLoading: boolean = true;
 
   selectedProvince: string | null = null;
+  selectedProvinceName: string | null = null;
 
   constructor(
     private productService: ProductService,
@@ -29,51 +31,64 @@ export class ProductsComponent implements OnInit {
   ) {}
 
 ngOnInit(): void {
-  
-  this.openLocationModal();
-  this.loadProducts();
- 
+  this.getLocation();
 }
-  openLocationModal() {
-    this.locationService.openLocationModal();
+
+openLocationModal() {
+  this.locationService.openLocationModal();
+}
+
+getLocation(){
+  // Intentar obtener la provincia del localStorage primero
+  const savedProvince = localStorage.getItem('selectedProvince');
+  if (savedProvince) {
+    try {
+      const province: Province = JSON.parse(savedProvince);
+      this.selectedProvinceName = province.name;
+      this.selectedProvince = province.id.toString();
+      this.loadProducts();
+      return;
+    } catch (e) {
+      console.log('Error parsing saved province');
+    }
   }
 
+  // Si no hay provincia guardada, abrir modal
+  this.openLocationModal();
+  this.loadProducts();
+}
 
 loadProducts(){
- // leer la provincia del query param
+  // Leer la provincia del query param
   this.route.queryParams.subscribe(params => {
-    this.selectedProvince = params['provincia'] ?? null;
+    const provinceId = params['provincia'] ?? null;
+    if (provinceId) {
+      this.selectedProvince = provinceId;
+      
+      // Obtener el nombre de la provincia desde el servicio
+      const province = this.locationService.provinces.find(p => p.id == provinceId);
+      if (province) {
+        this.selectedProvinceName = province.name;
+      }
+    }
   });
 
-  // cargar productos
+  // Cargar productos
+  this.isLoading = true;
   this.productService.getEmprendedoresConProductosPaginado().subscribe({
     next: (result: any) => {
-
-      console.log(result)
-
-      // if (result?.data) {
-      //   this.allProducts = result.data.map((p: any) => ({
-      //     ...p,
-      //     price: Number(p.price),
-
-      //     // ruta completa para que funcione localmente
-      //     img: p.img ? `http://localhost:8000/uploads/${p.img}` : null,
-
-      //     // campos que pide tu HTML pero no existen en backend
-      //     location: p.address ?? 'Sin dirección',
-      //     year: new Date().getFullYear(),
-      //     featured: false
-      //   }));
-
-      //   // lista inicial
-      //   this.products = [...this.allProducts];
-      //   this.cdr.detectChanges(); 
-
-      //   console.log("Productos cargados:", this.products);
-      //}
+      console.log(result);
+      // Asignar productos del resultado de la API
+      this.products = result?.data || [];
+      this.allProducts = this.products;
+      this.isLoading = false;
     },
     error: (err) => {
       console.error("Error cargando productos:", err);
+      // En caso de error, mostrar array vacío
+      this.products = [];
+      this.allProducts = [];
+      this.isLoading = false;
     }
   });
 }

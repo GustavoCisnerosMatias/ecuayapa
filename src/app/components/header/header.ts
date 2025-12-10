@@ -35,7 +35,7 @@ export class HeaderComponent {
     { label: 'Comprar', route: '/comprar', icon: 'shopping-cart' },
     { label: 'Vender', route: '/vender', icon: 'plus-circle' },
     { label: 'Ver en Mapa', route: '/mapa', icon: 'map' },
-    { label: 'Cambiar Ubicación', icon: 'map', isModal: true },
+    { label: 'Cambiar Ubicación', icon: 'fa fa-map-marker', isModal: true },
   ];
 
   openLocationModal() {

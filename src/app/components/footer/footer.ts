@@ -13,7 +13,6 @@ export class FooterComponent {
 
   contactInfo = [
     { icon: 'phone', text: '+593-2398-3100' },
-    // { icon: 'envelope', text: 'info@desarrollo.gob.ec' },
     { icon: 'map-marker-alt', text: 'Av. Amaru Ñan, Quito 170146. Piso 5 Plataforma Gubernamental de Desarrollo Social.' },
   ];
 

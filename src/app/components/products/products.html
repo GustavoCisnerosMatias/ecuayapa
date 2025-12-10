@@ -10,7 +10,7 @@
       <div class="products-counter">
         <span class="counter-pill">
           <i class="fas fa-box-open"></i>
-          {{ products.length }} productos encontrados en {{selectedProvince}}
+          {{ products.length }} productos encontrados<span *ngIf="selectedProvinceName"> en {{selectedProvinceName}}</span>
         </span>
 
       </div>
@@ -22,7 +22,17 @@
 
   <!-- Placeholder cards mientras carga -->
   <ng-container *ngIf="products.length === 0">
-    <article class="product-card placeholder" *ngFor="let i of [1,2,3,4,5,6]">
+    <!-- Mensaje cuando no hay productos -->
+    <div class="empty-state" *ngIf="!isLoading">
+      <div class="empty-icon">
+        <i class="fas fa-shopping-bag"></i>
+      </div>
+      <h3>No hay productos disponibles</h3>
+      <p>Actualmente no hay productos en esta ubicación. ¡Vuelve pronto para ver nuevas ofertas!</p>
+    </div>
+    
+    <!-- Solo 3 skeleton cards para loading -->
+    <article class="product-card placeholder" *ngFor="let i of [1,2,3]" [style.display]="isLoading ? 'block' : 'none'">
       <div class="product-card-glow"></div>
 
       <div class="product-image skeleton-box"></div>

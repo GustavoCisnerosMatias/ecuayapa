@@ -108,11 +108,13 @@ export class LocationService {
   {
     id: 4,
     name: 'Carchi',
-    lat: 0.82,
-    lng: -77.27,
+    lat: 0.77335,
+    lng: -78.04688,
     icon: 'flag',
     region: 'Sierra',
   },
+
+
   {
     id: 5,
     name: 'Cotopaxi',
