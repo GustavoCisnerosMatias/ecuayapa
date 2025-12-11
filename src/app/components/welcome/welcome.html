@@ -1,9 +1,6 @@
 <div class="wrap">
-  <!-- Overlay de carga -->
-  <div class="loading-overlay" *ngIf="loading">
-    <div class="spinner"></div>
-    <p>Obteniendo tu ubicación...</p>
-  </div>
+  <!-- Spinner de carga -->
+  <app-spinner [show]="loading" [message]="'Obteniendo tu ubicación...'"></app-spinner>
 
   <!-- Panel principal -->
   <div class="panel active">

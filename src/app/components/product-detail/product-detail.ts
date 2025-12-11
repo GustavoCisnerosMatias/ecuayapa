@@ -5,13 +5,14 @@ import { ProductService } from '../../services/product.service';
 import { RemoveStringIndexUnknownKey } from '@angular/forms/signals';
 import { SweetAlertArrayOptions } from 'sweetalert2';
 import { Sweetalert2Service } from '../../services/sweetalert2';
+import { SpinnerComponent } from '../spinner/spinner';
 
 
 
 @Component({
   selector: 'app-product-detail',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, SpinnerComponent],
   templateUrl: './product-detail.html',
   styleUrl: './product-detail.scss',
 })

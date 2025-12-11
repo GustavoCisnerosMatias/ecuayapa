@@ -3,7 +3,8 @@ import { Router } from '@angular/router';
 import * as L from 'leaflet';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Sweetalert2Service } from '../../services/sweetalert2'
+import { Sweetalert2Service } from '../../services/sweetalert2';
+import { SpinnerComponent } from '../spinner/spinner';
 
 
 export interface Product {
@@ -26,7 +27,7 @@ export interface Product {
 }
 @Component({
   selector: 'app-welcome',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, SpinnerComponent],
   templateUrl: './welcome.html',
   styleUrl: './welcome.scss',
 })

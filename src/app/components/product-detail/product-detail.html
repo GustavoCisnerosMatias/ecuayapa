@@ -1,3 +1,6 @@
+<!-- Spinner de carga -->
+<app-spinner [show]="isLoading" [message]="'Cargando producto...'"></app-spinner>
+
 <div class="min-h-screen bg-gray-50">
   <!-- Header -->
   <div class="max-w-7xl mx-auto px-4 py-6">
@@ -10,8 +13,8 @@
     </button>
   </div>
 
-  <!-- SKELETON LOADING STATE -->
-  <div *ngIf="isLoading" class="max-w-7xl mx-auto px-4 py-8">
+  <!-- SKELETON LOADING STATE (Oculto, ahora usamos spinner) -->
+  <div *ngIf="false" class="max-w-7xl mx-auto px-4 py-8">
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
       <!-- Image skeleton -->
       <div class="bg-gray-300 rounded-lg h-96 lg:h-full animate-pulse"></div>

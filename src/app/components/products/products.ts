@@ -6,11 +6,12 @@ import { ProductService } from '../../services/product.service';
 import { LocationService, Province } from '../../services/location.service';
 import { Observable } from 'rxjs';
 import { ChangeDetectorRef } from '@angular/core';
+import { SpinnerComponent } from '../spinner/spinner';
 
 @Component({
   selector: 'app-products',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, SpinnerComponent],
   templateUrl: './products.html',
   styleUrl: './products.scss',
 })
@@ -19,6 +20,10 @@ export class ProductsComponent implements OnInit {
   products: any[] = [];
   paginatedProducts: any[] = [];
   isLoading: boolean = true;
+
+  // Vistas: 'home' (secciones por categoría) o 'grid' (todos los productos)
+  currentView: 'home' | 'grid' = 'home';
+  selectedCategoryView: string | null = null;
 
   // Paginación
   currentPage: number = 1;
@@ -38,6 +43,19 @@ export class ProductsComponent implements OnInit {
     selectedCategories: [] as string[]
   };
   availableCategories: string[] = [];
+
+  // Productos agrupados por categoría (para vista home)
+  categoryGroups: { category: string; products: any[] }[] = [];
+  categoryPriority = [
+    'Alimentos y Bebidas',
+    'Manufactura',
+    'Comercio',
+    'Agropecuaria',
+    'Cultivo de Plantas',
+    'Actividades de Peluquería y Otros Tratamientos de Belleza',
+    'Cría y Reproducción de Cerdos',
+    'Otras Actividades de Servicio'
+  ];
 
   constructor(
     private productService: ProductService,
@@ -133,6 +151,9 @@ parseAndLoadProducts(soapXml: string) {
     
     // Extraer categorías únicas
     this.extractCategories();
+    
+    // Agrupar productos por categoría
+    this.groupProductsByCategory();
     
     // Calcular paginación
     this.calculatePagination();
@@ -336,6 +357,7 @@ loadProducts(){
 
   applyFilters() {
     let filtered = [...this.allProducts];
+    let hasActiveFilters = false;
 
     // Filtrar por texto (título)
     if (this.filters.searchText.trim()) {
@@ -343,16 +365,19 @@ loadProducts(){
       filtered = filtered.filter(p => 
         p.title?.toLowerCase().includes(searchLower)
       );
+      hasActiveFilters = true;
     }
 
     // Filtrar por precio mínimo
     if (this.filters.minPrice !== null && this.filters.minPrice > 0) {
       filtered = filtered.filter(p => p.price >= this.filters.minPrice!);
+      hasActiveFilters = true;
     }
 
     // Filtrar por precio máximo
     if (this.filters.maxPrice !== null && this.filters.maxPrice > 0) {
       filtered = filtered.filter(p => p.price <= this.filters.maxPrice!);
+      hasActiveFilters = true;
     }
 
     // Filtrar por categorías
@@ -360,12 +385,18 @@ loadProducts(){
       filtered = filtered.filter(p => 
         this.filters.selectedCategories.includes(p.nameCategory)
       );
+      hasActiveFilters = true;
     }
 
     this.products = filtered;
     this.currentPage = 1;
     this.calculatePagination();
     this.updatePaginatedProducts();
+
+    // Cambiar a vista grid si hay filtros activos
+    if (hasActiveFilters && this.currentView === 'home') {
+      this.currentView = 'grid';
+    }
   }
 
   clearFilters() {
@@ -375,6 +406,78 @@ loadProducts(){
       maxPrice: null,
       selectedCategories: []
     };
+    this.products = [...this.allProducts];
+    this.calculatePagination();
+    this.updatePaginatedProducts();
+    
+    // Volver a home si estábamos en grid por filtros
+    if (this.currentView === 'grid' && !this.selectedCategoryView) {
+      this.currentView = 'home';
+    }
+  }
+
+  // ====== VISTAS Y CATEGORÍAS ======
+  groupProductsByCategory() {
+    const grouped = new Map<string, any[]>();
+    
+    // Agrupar productos por categoría
+    this.allProducts.forEach(product => {
+      const category = product.nameCategory || 'Sin categoría';
+      if (!grouped.has(category)) {
+        grouped.set(category, []);
+      }
+      grouped.get(category)!.push(product);
+    });
+
+    // Ordenar por prioridad
+    this.categoryGroups = [];
+    
+    // Primero agregar categorías en orden de prioridad
+    this.categoryPriority.forEach(category => {
+      if (grouped.has(category)) {
+        this.categoryGroups.push({
+          category,
+          products: grouped.get(category)!
+        });
+        grouped.delete(category);
+      }
+    });
+
+    // Agregar categorías restantes
+    grouped.forEach((products, category) => {
+      this.categoryGroups.push({ category, products });
+    });
+
+    console.log('📊 Categorías agrupadas:', this.categoryGroups.length);
+  }
+
+  viewAllCategory(category: string) {
+    this.currentView = 'grid';
+    this.selectedCategoryView = category;
+    this.filters.selectedCategories = [category];
     this.applyFilters();
+    
+    // Scroll al inicio
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  backToHome() {
+    this.currentView = 'home';
+    this.selectedCategoryView = null;
+    this.clearFilters();
+  }
+
+  scrollCategoryLeft(categoryIndex: number) {
+    const container = document.querySelector(`.category-scroll-${categoryIndex}`) as HTMLElement;
+    if (container) {
+      container.scrollBy({ left: -300, behavior: 'smooth' });
+    }
+  }
+
+  scrollCategoryRight(categoryIndex: number) {
+    const container = document.querySelector(`.category-scroll-${categoryIndex}`) as HTMLElement;
+    if (container) {
+      container.scrollBy({ left: 300, behavior: 'smooth' });
+    }
   }
 }
