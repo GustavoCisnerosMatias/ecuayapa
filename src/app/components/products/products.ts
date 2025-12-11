@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ProductService } from '../../services/product.service';
 import { LocationService, Province } from '../../services/location.service';
@@ -9,17 +10,34 @@ import { ChangeDetectorRef } from '@angular/core';
 @Component({
   selector: 'app-products',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './products.html',
   styleUrl: './products.scss',
 })
 export class ProductsComponent implements OnInit {
-    allProducts: any[] = [];
+  allProducts: any[] = [];
   products: any[] = [];
+  paginatedProducts: any[] = [];
   isLoading: boolean = true;
+
+  // Paginación
+  currentPage: number = 1;
+  productsPerPage: number = 12; // 4 filas x 3 columnas
+  totalPages: number = 1;
+  Math = Math; // Exponer Math para el template
 
   selectedProvince: string | null = null;
   selectedProvinceName: string | null = null;
+
+  // Filtros
+  showFilters: boolean = false;
+  filters = {
+    searchText: '',
+    minPrice: null as number | null,
+    maxPrice: null as number | null,
+    selectedCategories: [] as string[]
+  };
+  availableCategories: string[] = [];
 
   constructor(
     private productService: ProductService,
@@ -31,7 +49,176 @@ export class ProductsComponent implements OnInit {
   ) {}
 
 ngOnInit(): void {
-  this.getLocation();
+  //this.getLocation();
+  this.loadProductsFromSOAP();
+}
+
+loadProductsFromSOAP() {
+  this.isLoading = true;
+  this.productService.getProductByIdSOAP().subscribe({
+    next: (soapResponse: string) => {
+      console.log('Respuesta SOAP recibida');
+      this.parseAndLoadProducts(soapResponse);
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    },
+    error: (err) => {
+      console.error('Error en SOAP:', err);
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    }
+  });
+}
+
+parseAndLoadProducts(soapXml: string) {
+  try {
+    // Parsear XML
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(soapXml, 'text/xml');
+
+    // Extraer todos los emprendedoresConProductos
+    const emprendedores = xmlDoc.getElementsByTagName('emprendedoresConProductos');
+    const productsList: any[] = [];
+
+    for (let i = 0; i < emprendedores.length; i++) {
+      const emp = emprendedores[i];
+      
+      // Datos del emprendedor
+      const firstName = emp.getElementsByTagName('firstName')[0]?.textContent || '';
+      const lastName = emp.getElementsByTagName('lastName')[0]?.textContent || '';
+      const nameStore = emp.getElementsByTagName('nameStore')[0]?.textContent || '';
+      const descriptionStore = emp.getElementsByTagName('descriptionStore')[0]?.textContent || '';
+      const nameProvincia = emp.getElementsByTagName('nameProvincia')[0]?.textContent || '';
+      const nameCanton = emp.getElementsByTagName('nameCanton')[0]?.textContent || '';
+      const address = emp.getElementsByTagName('address')[0]?.textContent || '';
+      const phone = emp.getElementsByTagName('phone')[0]?.textContent || '';
+      const email = emp.getElementsByTagName('email')[0]?.textContent || '';
+
+      // Extraer productos del emprendedor
+      const productos = emp.getElementsByTagName('productos');
+      
+      for (let j = 0; j < productos.length; j++) {
+        const prod = productos[j];
+        
+        const product = {
+          id_product: prod.getElementsByTagName('idProducts')[0]?.textContent || '',
+          title: prod.getElementsByTagName('title')[0]?.textContent || '',
+          descriptionProduct: prod.getElementsByTagName('descriptionProduct')[0]?.textContent || '',
+          price: parseFloat(prod.getElementsByTagName('price')[0]?.textContent || '0'),
+          nameCategory: prod.getElementsByTagName('nameCategory')[0]?.textContent || '',
+          nameFile: prod.getElementsByTagName('nameFile')[0]?.textContent || '',
+          node: prod.getElementsByTagName('node')[0]?.textContent || '',
+          statusProduct: prod.getElementsByTagName('statusProduct')[0]?.textContent || '',
+          // Datos del emprendedor
+          firstName: firstName.trim(),
+          lastName: lastName.trim(),
+          nameStore: nameStore.trim(),
+          descriptionStore: descriptionStore.trim(),
+          location: `${address.trim()}, ${nameCanton.trim()} - ${nameProvincia.trim()}`,
+          phone: phone.trim(),
+          email: email.trim(),
+          year: new Date().getFullYear(),
+          featured: false,
+          img: this.buildImageUrl(prod.getElementsByTagName('node')[0]?.textContent || '')
+        };
+
+        productsList.push(product);
+      }
+    }
+
+    this.products = productsList;
+    this.allProducts = productsList;
+    console.log('Productos cargados:', productsList.length);
+    console.log('Primer producto:', productsList[0]);
+    
+    // Extraer categorías únicas
+    this.extractCategories();
+    
+    // Calcular paginación
+    this.calculatePagination();
+    this.updatePaginatedProducts();
+  } catch (error) {
+    console.error('Error parseando SOAP XML:', error);
+    this.products = [];
+  }
+}
+
+calculatePagination() {
+  this.totalPages = Math.ceil(this.products.length / this.productsPerPage);
+  if (this.currentPage > this.totalPages) {
+    this.currentPage = 1;
+  }
+}
+
+updatePaginatedProducts() {
+  const startIndex = (this.currentPage - 1) * this.productsPerPage;
+  const endIndex = startIndex + this.productsPerPage;
+  this.paginatedProducts = this.products.slice(startIndex, endIndex);
+  console.log(`📄 Página ${this.currentPage}/${this.totalPages}: Mostrando productos ${startIndex + 1} a ${Math.min(endIndex, this.products.length)}`);
+}
+
+goToPage(page: number) {
+  if (page >= 1 && page <= this.totalPages) {
+    this.currentPage = page;
+    this.updatePaginatedProducts();
+    // Scroll suave al inicio de la lista
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
+nextPage() {
+  if (this.currentPage < this.totalPages) {
+    this.goToPage(this.currentPage + 1);
+  }
+}
+
+prevPage() {
+  if (this.currentPage > 1) {
+    this.goToPage(this.currentPage - 1);
+  }
+}
+
+getPageNumbers(): number[] {
+  const pages: number[] = [];
+  const maxPagesToShow = 5;
+  
+  if (this.totalPages <= maxPagesToShow) {
+    // Mostrar todas las páginas
+    for (let i = 1; i <= this.totalPages; i++) {
+      pages.push(i);
+    }
+  } else {
+    // Mostrar páginas con ... 
+    const start = Math.max(1, this.currentPage - 2);
+    const end = Math.min(this.totalPages, this.currentPage + 2);
+    
+    if (start > 1) {
+      pages.push(1);
+      if (start > 2) pages.push(-1); // -1 representa "..."
+    }
+    
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+    
+    if (end < this.totalPages) {
+      if (end < this.totalPages - 1) pages.push(-1); // -1 representa "..."
+      pages.push(this.totalPages);
+    }
+  }
+  
+  return pages;
+}
+
+buildImageUrl(fileName: string): string {
+  if (!fileName) {
+    console.warn('Sin nombre de archivo para imagen');
+    return 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><rect fill="%23f0f0f0" width="200" height="200"/><text x="50%" y="50%" text-anchor="middle" dy=".3em" font-family="Arial" font-size="14" fill="%23999">Sin imagen</text></svg>';
+  }
+  // Usar proxy para evitar CORS
+  const imageUrl = `/images/${fileName}`;
+  console.log('URL de imagen a través de proxy:', imageUrl);
+  return imageUrl;
 }
 
 openLocationModal() {
@@ -102,10 +289,92 @@ loadProducts(){
 
   onImageError(event: Event): void {
     const img = event.target as HTMLImageElement;
+    console.warn('Error cargando imagen:', img.src);
     img.style.display = 'none';
+    // El fallback se mostrará automáticamente porque la imagen está hidden
+  }
+
+  onImageLoad(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    console.log('Imagen cargada:', img.src);
+    // Ocultar el fallback cuando la imagen carga
+    const fallback = img.parentElement?.querySelector('.image-fallback') as HTMLElement;
+    if (fallback) {
+      fallback.style.opacity = '0';
+      fallback.style.pointerEvents = 'none';
+    }
   }
 
   viewProduct(productId: number): void {
     this.router.navigate(['/producto', productId]);
+  }
+
+  // ====== FILTROS ======
+  toggleFilters() {
+    this.showFilters = !this.showFilters;
+  }
+
+  extractCategories() {
+    const categoriesSet = new Set<string>();
+    this.allProducts.forEach(product => {
+      if (product.nameCategory) {
+        categoriesSet.add(product.nameCategory);
+      }
+    });
+    this.availableCategories = Array.from(categoriesSet).sort();
+  }
+
+  toggleCategory(category: string) {
+    const index = this.filters.selectedCategories.indexOf(category);
+    if (index > -1) {
+      this.filters.selectedCategories.splice(index, 1);
+    } else {
+      this.filters.selectedCategories.push(category);
+    }
+    this.applyFilters();
+  }
+
+  applyFilters() {
+    let filtered = [...this.allProducts];
+
+    // Filtrar por texto (título)
+    if (this.filters.searchText.trim()) {
+      const searchLower = this.filters.searchText.toLowerCase();
+      filtered = filtered.filter(p => 
+        p.title?.toLowerCase().includes(searchLower)
+      );
+    }
+
+    // Filtrar por precio mínimo
+    if (this.filters.minPrice !== null && this.filters.minPrice > 0) {
+      filtered = filtered.filter(p => p.price >= this.filters.minPrice!);
+    }
+
+    // Filtrar por precio máximo
+    if (this.filters.maxPrice !== null && this.filters.maxPrice > 0) {
+      filtered = filtered.filter(p => p.price <= this.filters.maxPrice!);
+    }
+
+    // Filtrar por categorías
+    if (this.filters.selectedCategories.length > 0) {
+      filtered = filtered.filter(p => 
+        this.filters.selectedCategories.includes(p.nameCategory)
+      );
+    }
+
+    this.products = filtered;
+    this.currentPage = 1;
+    this.calculatePagination();
+    this.updatePaginatedProducts();
+  }
+
+  clearFilters() {
+    this.filters = {
+      searchText: '',
+      minPrice: null,
+      maxPrice: null,
+      selectedCategories: []
+    };
+    this.applyFilters();
   }
 }

@@ -1,194 +1,290 @@
-<!-- <div class="product-detail-container">
-  <div class="product-detail-header">
-    <button class="btn-back" (click)="goBack()">
-      <i class="fas fa-arrow-left"></i> Volver
+<div class="min-h-screen bg-gray-50">
+  <!-- Header -->
+  <div class="max-w-7xl mx-auto px-4 py-6">
+    <button 
+      (click)="goBack()" 
+      class="inline-flex items-center gap-2 text-blue-900 hover:text-red-600 transition-colors duration-300 font-semibold"
+    >
+      <i class="fas fa-arrow-left text-lg"></i>
+      Volver
     </button>
   </div>
 
-  <div *ngIf="product" class="product-detail-content">
-    <div class="product-detail-image">
-      <img [src]="product.image" [alt]="product.title" />
+  <!-- SKELETON LOADING STATE -->
+  <div *ngIf="isLoading" class="max-w-7xl mx-auto px-4 py-8">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <!-- Image skeleton -->
+      <div class="bg-gray-300 rounded-lg h-96 lg:h-full animate-pulse"></div>
+
+      <!-- Info skeleton -->
+      <div class="space-y-6">
+        <div class="h-8 bg-gray-300 rounded w-3/4 animate-pulse"></div>
+        <div class="h-6 bg-gray-300 rounded w-1/2 animate-pulse"></div>
+        <div class="h-5 bg-gray-300 rounded w-2/3 animate-pulse"></div>
+
+        <!-- Description skeleton -->
+        <div class="space-y-3 pt-4">
+          <div class="h-5 bg-gray-300 rounded w-1/4 animate-pulse"></div>
+          <div class="h-4 bg-gray-300 rounded animate-pulse"></div>
+          <div class="h-4 bg-gray-300 rounded animate-pulse"></div>
+          <div class="h-4 bg-gray-300 rounded w-3/4 animate-pulse"></div>
+        </div>
+
+        <!-- Entrepreneur skeleton -->
+        <div class="border-t pt-6 space-y-3">
+          <div class="h-5 bg-gray-300 rounded w-1/4 animate-pulse"></div>
+          <div class="h-4 bg-gray-300 rounded w-1/2 animate-pulse"></div>
+          <div class="h-4 bg-gray-300 rounded animate-pulse"></div>
+          <div class="h-4 bg-gray-300 rounded w-2/3 animate-pulse"></div>
+        </div>
+
+        <!-- Buttons skeleton -->
+        <div class="grid grid-cols-2 gap-3 pt-6">
+          <div class="h-11 bg-gray-300 rounded animate-pulse"></div>
+          <div class="h-11 bg-gray-300 rounded animate-pulse"></div>
+        </div>
+      </div>
     </div>
+  </div>
 
-    <div class="product-detail-info">
-      <h1 class="product-title">{{ product.title }}</h1>
-      <div class="product-price">{{ formatPrice(product.price) }}</div>
-      <div class="product-location">
-        <i class="fas fa-map-marker-alt"></i> {{ product.location }}
-      </div>
+  <!-- LOADED STATE -->
+  <div *ngIf="!isLoading && product" class="max-w-7xl mx-auto px-4 py-8">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Columna Izquierda: Imagen + Descripción -->
+      <div class="lg:col-span-2 space-y-6">
+        <!-- Imagen y Título/Precio en mobile, solo imagen en desktop -->
+        <div class="bg-white rounded-lg overflow-hidden shadow-lg">
+          <div class="relative">
+            <img 
+              [src]="product.img" 
+              [alt]="product.title"
+              (load)="onImageLoad(product.img)"
+              (error)="onImageError(product.img)"
+              class="w-full h-64 md:h-96 lg:h-[500px] object-cover"
+            />
+            <div 
+              *ngIf="!loadedImages[product.img]" 
+              class="absolute inset-0 flex flex-col items-center justify-center bg-gray-100"
+            >
+              <i class="fas fa-image text-4xl text-gray-400 mb-2"></i>
+              <p class="text-gray-500 text-sm">No se pudo cargar la imagen</p>
+            </div>
+          </div>
+          
+          <!-- Título y Precio - Solo visible en mobile -->
+          <div class="lg:hidden p-4 border-t border-gray-200">
+            <h1 class="text-2xl font-bold text-blue-900 mb-2">
+              {{ product.title }}
+            </h1>
+            <div class="flex items-center justify-between mb-3">
+              <div class="text-2xl font-bold text-red-600">
+                {{ formatPrice(product.price || 0) }}
+              </div>
+              <span *ngIf="product.nameCategory" class="bg-blue-100 text-blue-900 px-3 py-1 rounded-full text-xs font-semibold">
+                {{ product.nameCategory }}
+              </span>
+            </div>
+            <div class="flex items-center gap-2 text-gray-600 text-sm">
+              <i class="fas fa-map-marker-alt text-red-600"></i>
+              <span>{{ product.location || 'Ubicación no disponible' }}</span>
+            </div>
+          </div>
+        </div>
 
-      <div class="product-description">
-        <h3>Descripción</h3>
-        <p>{{ product.description }}</p>
-      </div>
-
-      <div class="entrepreneur-section">
-        <h3>Emprendedor</h3>
-        <div class="entrepreneur-info">
-          <h4>{{ product.entrepreneurName }}</h4>
-          <p class="entrepreneur-story">{{ product.entrepreneurStory }}</p>
+        <!-- Descripción del Producto -->
+        <div *ngIf="product.descriptionProduct" class="bg-white p-6 rounded-lg shadow-md">
+          <h3 class="text-lg font-semibold text-blue-900 mb-3 flex items-center gap-2">
+            <i class="fas fa-info-circle text-red-600"></i>
+            Descripción del Producto
+          </h3>
+          <p class="text-gray-700 leading-relaxed">{{ product.descriptionProduct }}</p>
         </div>
       </div>
 
-      <div class="action-buttons">
-        <button class="btn-contact" (click)="contactWhatsApp()">
-          <i class="fab fa-whatsapp"></i> Contactar por WhatsApp
-        </button>
-        <button class="btn-share" (click)="openShareModal()">
-          <i class="fas fa-share-alt"></i> Compartir
-        </button>
+      <!-- Columna Derecha: Info del Producto + Emprendedor + Botones -->
+      <div class="lg:col-span-1 space-y-6">
+        <!-- Título y Precio - Solo visible en desktop -->
+        <div class="hidden lg:block bg-white p-6 rounded-lg shadow-md">
+          <h1 class="text-2xl xl:text-3xl font-bold text-blue-900 mb-3">
+            {{ product.title }}
+          </h1>
+          <div class="text-3xl font-bold text-red-600 mb-4">
+            {{ formatPrice(product.price || 0) }}
+          </div>
+          <div class="flex items-center gap-2 text-gray-600 mb-3">
+            <i class="fas fa-map-marker-alt text-red-600"></i>
+            <span class="text-sm">{{ product.location || 'Ubicación no disponible' }}</span>
+          </div>
+          <div *ngIf="product.nameCategory" class="flex items-center gap-2">
+            <span class="inline-block bg-blue-100 text-blue-900 px-3 py-1 rounded-full text-sm font-semibold">
+              <i class="fas fa-tag mr-1"></i>{{ product.nameCategory }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Información del Emprendedor -->
+        <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-lg shadow-md border border-blue-200">
+          <h3 class="text-lg font-semibold text-blue-900 mb-4 flex items-center gap-2">
+            <i class="fas fa-user-tie text-red-600"></i>
+            Emprendedor
+          </h3>
+          
+          <div class="space-y-3">
+            <div>
+              <p class="text-gray-600 text-xs uppercase tracking-wide">Nombre</p>
+              <p class="text-base font-semibold text-blue-900">
+                {{ product.firstName }} {{ product.lastName }}
+              </p>
+            </div>
+
+            <div *ngIf="product.nameStore" class="pt-2 border-t border-blue-200">
+              <p class="text-gray-600 text-xs uppercase tracking-wide">Tienda</p>
+              <p class="font-semibold text-blue-900">{{ product.nameStore }}</p>
+            </div>
+
+            <div *ngIf="product.descriptionStore" class="pt-3 border-t border-blue-200">
+              <p class="text-gray-600 text-xs uppercase tracking-wide mb-2">Historia</p>
+              <p class="text-gray-700 text-sm leading-relaxed">{{ product.descriptionStore }}</p>
+            </div>
+
+            <div class="space-y-2 pt-3 border-t border-blue-200">
+              <div *ngIf="product.email" class="flex items-center gap-2">
+                <i class="fas fa-envelope text-red-600 text-sm flex-shrink-0"></i>
+                <a 
+                  [href]="'mailto:' + product.email" 
+                  class="text-blue-900 hover:text-red-600 transition-colors text-sm break-all"
+                >
+                  {{ product.email }}
+                </a>
+              </div>
+              <div *ngIf="product.phone" class="flex items-center gap-2">
+                <i class="fas fa-phone text-red-600 text-sm flex-shrink-0"></i>
+                <a 
+                  [href]="'tel:' + product.phone" 
+                  class="text-blue-900 hover:text-red-600 transition-colors text-sm"
+                >
+                  {{ product.phone }}
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Botones de Acción -->
+        <div class="space-y-3">
+          <button 
+            (click)="contactWhatsApp()"
+            class="w-full flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
+          >
+            <i class="fab fa-whatsapp text-xl"></i>
+            Contactar por WhatsApp
+          </button>
+          <button 
+            (click)="openShareModal()"
+            class="w-full flex items-center justify-center gap-2 bg-blue-900 hover:bg-blue-800 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
+          >
+            <i class="fas fa-share-alt text-lg"></i>
+            Compartir Producto
+          </button>
+        </div>
       </div>
     </div>
   </div>
 
-  <div *ngIf="!product" class="product-not-found">
-    <p>Producto no encontrado</p>
+  <!-- ERROR STATE -->
+  <div *ngIf="!isLoading && !product" class="max-w-7xl mx-auto px-4 py-16">
+    <div class="bg-white rounded-lg shadow-md p-12 text-center">
+      <div class="inline-block p-6 bg-gray-100 rounded-full mb-6">
+        <i class="fas fa-shopping-bag text-5xl text-gray-400"></i>
+      </div>
+      <h3 class="text-2xl font-bold text-gray-800 mb-3">Producto no encontrado</h3>
+      <p class="text-gray-600 mb-6">El producto que buscas no está disponible o no existe.</p>
+      <button 
+        (click)="goBack()"
+        class="inline-flex items-center gap-2 bg-blue-900 hover:bg-blue-800 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+      >
+        <i class="fas fa-arrow-left"></i>
+        Volver a productos
+      </button>
+    </div>
   </div>
 
-  <div *ngIf="showShareModal" class="share-modal-overlay" (click)="closeShareModal()">
-    <div class="share-modal" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h2>Compartir Producto</h2>
-        <button class="btn-close" (click)="closeShareModal()">
-          <i class="fas fa-times"></i>
+  <!-- SHARE MODAL -->
+  <div 
+    *ngIf="showShareModal && product" 
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+    (click)="closeShareModal()"
+  >
+    <div 
+      class="bg-white rounded-lg shadow-2xl max-w-md w-full animate-in"
+      (click)="$event.stopPropagation()"
+    >
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between p-6 border-b border-gray-200">
+        <h2 class="text-2xl font-bold text-blue-900">Compartir Producto</h2>
+        <button 
+          (click)="closeShareModal()"
+          class="text-gray-500 hover:text-gray-700 transition-colors"
+        >
+          <i class="fas fa-times text-2xl"></i>
         </button>
       </div>
 
-      <div class="modal-body">
-        <div class="share-info">
-          <img [src]="product?.image" [alt]="product?.title" class="share-product-image" />
-          <div class="share-product-info">
-            <h3>{{ product?.title }}</h3>
-            <p class="share-price">{{ formatPrice(product?.price || 0) }}</p>
-            <p class="share-entrepreneur">
-              Emprendedor: <strong>{{ product?.entrepreneurName }}</strong>
+      <!-- Modal Body -->
+      <div class="p-6 space-y-6">
+        <!-- Product Preview -->
+        <div class="space-y-3">
+          <img 
+            [src]="product.img" 
+            [alt]="product.title"
+            class="w-full h-40 object-cover rounded-lg"
+          />
+          <div>
+            <h3 class="font-bold text-blue-900 text-lg">{{ product.title }}</h3>
+            <p class="text-red-600 font-semibold">{{ formatPrice(product.price) }}</p>
+            <p class="text-gray-600 text-sm">
+              Emprendedor: <strong>{{ product.firstName }} {{ product.lastName }}</strong>
             </p>
           </div>
         </div>
 
-        <div class="share-link-section">
-          <label>Link para compartir:</label>
-          <div class="share-link-container">
-            <input type="text" [value]="shareLink" readonly />
-            <button class="btn-copy" (click)="copyLink()">
-              <i class="fas fa-copy"></i> Copiar
+        <!-- Share Link -->
+        <div class="space-y-2">
+          <label class="block text-sm font-semibold text-gray-700">Link para compartir:</label>
+          <div class="flex gap-2">
+            <input 
+              type="text" 
+              [value]="shareLink" 
+              readonly
+              class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-600 bg-gray-50"
+            />
+            <button 
+              (click)="copyLink()"
+              class="bg-blue-900 hover:bg-blue-800 text-white px-3 py-2 rounded-lg transition-colors flex items-center gap-1"
+            >
+              <i class="fas fa-copy text-sm"></i>
+              Copiar
             </button>
           </div>
         </div>
 
-        <div class="share-actions">
-          <button class="btn-whatsapp" (click)="contactWhatsApp()">
-            <i class="fab fa-whatsapp"></i> Enviar por WhatsApp
+        <!-- Share Actions -->
+        <div class="flex gap-3">
+          <button 
+            (click)="contactWhatsApp()"
+            class="flex-1 flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+          >
+            <i class="fab fa-whatsapp"></i>
+            WhatsApp
           </button>
-          <button class="btn-close-modal" (click)="closeShareModal()">
+          <button 
+            (click)="closeShareModal()"
+            class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-lg transition-colors"
+          >
             Cerrar
           </button>
         </div>
       </div>
     </div>
   </div>
-</div> -->
-<div class="product-detail-container">
-  <div class="product-detail-header">
-    <button class="btn-back" (click)="goBack()">
-      <i class="fas fa-arrow-left"></i> Volver
-    </button>
-  </div>
-
-  <ng-container *ngIf="product$ | async as product; else loading">
-    <div class="product-detail-content">
-      <!-- Imagen del Producto -->
-      <div class="product-detail-image">
-        <img [src]="product.image" [alt]="product.title" />
-      </div>
-
-      <!-- Información del Producto -->
-      <div class="product-detail-info">
-        <h1 class="product-title">{{ product.title }}</h1>
-        <div class="product-price">{{ formatPrice(product.price) }}</div>
-        <div class="product-location">
-          <i class="fas fa-map-marker-alt"></i> {{ product.location }}
-        </div>
-
-        <div class="product-description">
-          <h3>Descripción</h3>
-          <p>{{ product.description }}</p>
-        </div>
-
-        <!-- Información del Emprendedor -->
-        <div class="entrepreneur-section">
-          <h3>Emprendedor</h3>
-          <div class="entrepreneur-info">
-            <h4>{{ product.entrepreneurName }}</h4>
-            <p class="entrepreneur-story">{{ product.entrepreneurStory }}</p>
-          </div>
-        </div>
-
-        <!-- Botones de Acción -->
-        <div class="action-buttons">
-          <button class="btn-contact" (click)="contactWhatsApp(product)">
-            <i class="fab fa-whatsapp"></i> Contactar por WhatsApp
-          </button>
-          <button class="btn-share" (click)="openShareModal()">
-            <i class="fas fa-share-alt"></i> Compartir
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Modal de Compartir -->
-    <div *ngIf="showShareModal" class="share-modal-overlay" (click)="closeShareModal()">
-      <div class="share-modal" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-          <h2>Compartir Producto</h2>
-          <button class="btn-close" (click)="closeShareModal()">
-            <i class="fas fa-times"></i>
-          </button>
-        </div>
-
-        <div class="modal-body">
-          <div class="share-info">
-            <img [src]="product.image" [alt]="product.title" class="share-product-image" />
-            <div class="share-product-info">
-              <h3>{{ product.title }}</h3>
-              <p class="share-price">{{ formatPrice(product.price || 0) }}</p>
-              <p class="share-entrepreneur">
-                Emprendedor: {{ product.NamePerson }}
-                <strong>{{ product.DescriptionEmpre }}</strong>
-
-
-
-                
-              </p>
-            </div>
-          </div>
-
-          <div class="share-link-section">
-            <label>Link para compartir:</label>
-            <div class="share-link-container">
-              <input type="text" [value]="shareLink" readonly />
-              <button class="btn-copy" (click)="copyLink()">
-                <i class="fas fa-copy"></i> Copiar
-              </button>
-            </div>
-          </div>
-
-          <div class="share-actions">
-            <button class="btn-whatsapp" (click)="contactWhatsApp(product)">
-              <i class="fab fa-whatsapp"></i> Enviar por WhatsApp
-            </button>
-            <button class="btn-close-modal" (click)="closeShareModal()">
-              Cerrar
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </ng-container>
-
-  <ng-template #loading>
-    <div class="product-not-found">
-      <p>Cargando producto...</p>
-    </div>
-  </ng-template>
 </div>

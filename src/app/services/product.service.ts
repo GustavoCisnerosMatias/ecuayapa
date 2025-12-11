@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { LocationService, Province } from './location.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { catchError, Observable, tap, throwError } from 'rxjs';
 
 export interface Product {
   id: number;
@@ -141,4 +141,105 @@ getEmprendedoresConProductosPaginado(): Observable<string> {
   getProductById(id_product: string): Observable<{ data: Product }> {
     return this.http.get<{ data: Product }>(`${this.baseUrl}?id_product=${id_product}`);
   }
+
+  // getProductByIdSOAP(id_product: string): Observable<string> {
+  //   console.log("Llamando a getProductByIdSOAP con id_product:", id_product);
+  //   const url = 'https://siimdhalpha.desarrollohumano.gob.ec/ecuayapa-ws/ecuayapa-service';
+
+  //   const soapEnvelope = `
+  //     <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+  //                       xmlns:ecu="http://ecuayapa.mdh.gob.ec/">
+  //       <soapenv:Header/>
+  //       <soapenv:Body>
+  //         <ecu:tuMetodo>
+  //           <username>ws.mdh.ecuayapa</username>
+  //           <password>Ecu4Y@paSii</password>
+  //           <idProducto>${id_product}</idProducto>
+  //         </ecu:tuMetodo>
+  //       </soapenv:Body>
+  //     </soapenv:Envelope>
+  //   `;
+
+  //   const headers = new HttpHeaders({
+  //     'Content-Type': 'text/xml;charset=UTF-8',
+  //     'SOAPAction': ''
+  //   });
+
+  //   return this.http.post(url, soapEnvelope, {
+  //     headers,
+  //     responseType: 'text'
+  //   }).pipe(
+  //     tap(resp => console.log('Respuesta SOAP:', resp))
+  //   );
+  // }
+getProductByIdSOAP(): Observable<string> {
+  // Usa /api en desarrollo (proxy redirige a prod)
+  const url = '/api/ecuayapa-ws/ecuayapa-service';
+
+  const soapEnvelope = `
+    <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+                      xmlns:ecu="http://impl.service.siimies.web.ecuayapa/">
+      <soapenv:Header/>
+      <soapenv:Body>
+        <ecu:consultarEmprendedoresConProductosPaginado/>
+      </soapenv:Body>
+    </soapenv:Envelope>
+  `;
+
+  const headers = new HttpHeaders({
+    'Content-Type': 'text/xml;charset=UTF-8',
+    'SOAPAction': '',
+    'Authorization': 'Basic ' + btoa('ws.mdh.ecuayapa:Ecu4Y@paSii')
+  });
+
+  return this.http.post(url, soapEnvelope, {
+    headers,
+    responseType: 'text'
+  }).pipe(
+    tap(resp => console.log("✅ SOAP RESPONSE:", resp)),
+    catchError(error => {
+      console.error("❌ Error en SOAP:", error);
+      return throwError(() => ({
+        message: "Error conectando con Ecuayapa",
+        original: error
+      }));
+    })
+  );
 }
+
+getProductDetail(productId: string | number): Observable<any> {
+  // Usa /api en desarrollo (proxy redirige a prod)
+  const url = '/api/ecuayapa-ws/ecuayapa-service';
+
+  const soapEnvelope = `
+    <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+                      xmlns:ecu="http://impl.service.siimies.web.ecuayapa/">
+      <soapenv:Header/>
+      <soapenv:Body>
+        <ecu:consultarEmprendedoresConProductosPaginado/>
+      </soapenv:Body>
+    </soapenv:Envelope>
+  `;
+
+  const headers = new HttpHeaders({
+    'Content-Type': 'text/xml;charset=UTF-8',
+    'SOAPAction': '',
+    'Authorization': 'Basic ' + btoa('ws.mdh.ecuayapa:Ecu4Y@paSii')
+  });
+
+  return this.http.post(url, soapEnvelope, {
+    headers,
+    responseType: 'text'
+  }).pipe(
+    tap(resp => console.log("✅ SOAP Response received, will search for product ID:", productId)),
+    catchError(error => {
+      console.error("❌ Error en SOAP:", error);
+      return throwError(() => ({
+        message: "Error conectando con Ecuayapa",
+        original: error
+      }));
+    })
+  );
+}
+
+  }

@@ -2,9 +2,6 @@
 <section class="products-section">
   <div class="products-container">
 
-    <div class="section-header">
-      <div class="section-chip">Productos Disponibles</div>
-    </div>
 
     <div class="products-toolbar">
       <div class="products-counter">
@@ -12,10 +9,80 @@
           <i class="fas fa-box-open"></i>
           {{ products.length }} productos encontrados<span *ngIf="selectedProvinceName"> en {{selectedProvinceName}}</span>
         </span>
-
       </div>
 
+      <button class="btn-filters" (click)="toggleFilters()">
+        <i class="fas fa-filter"></i>
+        <span>Filtros</span>
+      </button>
+    </div>
 
+    <!-- Panel de Filtros -->
+    <div class="filters-panel" [class.show]="showFilters">
+      <div class="filters-header">
+        <h3><i class="fas fa-sliders-h"></i> Filtros de Búsqueda</h3>
+        <button class="btn-clear-filters" (click)="clearFilters()">
+          <i class="fas fa-times-circle"></i> Limpiar
+        </button>
+      </div>
+
+      <div class="filters-content">
+        <!-- Columna Izquierda: Título y Precios -->
+        <div class="filters-column">
+          <!-- Búsqueda por título -->
+          <div class="filter-group">
+            <label><i class="fas fa-search"></i> Buscar por título</label>
+            <input 
+              type="text" 
+              class="filter-input" 
+              placeholder="Ej: Carteras, Pijamas..."
+              [(ngModel)]="filters.searchText"
+              (input)="applyFilters()"
+            />
+          </div>
+
+          <!-- Filtro de precios -->
+          <div class="filter-group">
+            <label><i class="fas fa-dollar-sign"></i> Rango de precios</label>
+            <div class="price-inputs">
+              <input 
+                type="number" 
+                class="filter-input" 
+                placeholder="Mínimo"
+                [(ngModel)]="filters.minPrice"
+                (input)="applyFilters()"
+                min="0"
+              />
+              <span class="price-separator">-</span>
+              <input 
+                type="number" 
+                class="filter-input" 
+                placeholder="Máximo"
+                [(ngModel)]="filters.maxPrice"
+                (input)="applyFilters()"
+                min="0"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Columna Derecha: Categorías -->
+        <div class="filters-column">
+          <div class="filter-group filter-group-full">
+            <label><i class="fas fa-tags"></i> Categorías</label>
+            <div class="categories-list">
+              <button 
+                *ngFor="let category of availableCategories"
+                class="category-chip"
+                [class.active]="filters.selectedCategories.includes(category)"
+                (click)="toggleCategory(category)"
+              >
+                {{ category }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
 <div class="products-grid">
@@ -40,18 +107,18 @@
       <div class="product-info">
         <div class="product-header">
           <h3 class="product-title skeleton-text"></h3>
-          <span class="product-chip-year skeleton-text"></span>
+          <span class="product-chip-category skeleton-text" style="width: 80px; height: 24px;"></span>
         </div>
         <div class="product-specs">
           <div class="spec skeleton-text"></div>
           <div class="spec skeleton-text"></div>
         </div>
         <div class="product-footer">
-          <div class="product-price-block">
-            <div class="product-price skeleton-text"></div>
-            <div class="product-price-note skeleton-text"></div>
+          <div class="product-price skeleton-text" style="width: 80px; height: 28px;"></div>
+          <div class="product-actions">
+            <div class="skeleton-button" style="width: 42px; height: 42px; border-radius: 0.6rem;"></div>
+            <div class="skeleton-button" style="width: 42px; height: 42px; border-radius: 0.6rem;"></div>
           </div>
-          <button class="btn-primary skeleton-button"></button>
         </div>
       </div>
     </article>
@@ -60,7 +127,7 @@
   <!-- Productos reales -->
   <article
     class="product-card"
-    *ngFor="let product of products"
+    *ngFor="let product of paginatedProducts"
     [class.featured]="product.featured">
 
     <div class="product-card-glow"></div>
@@ -75,50 +142,96 @@
         [src]="product.img"
         [alt]="product.title"
         (error)="onImageError($event)"
+        (load)="onImageLoad($event)"
+        crossorigin="anonymous"
       />
       <div class="image-fallback">
         <i class="fas fa-shopping-bag"></i>
       </div>
-      <div class="product-overlay">
+      <!-- <div class="product-overlay">
         <button class="btn-view" (click)="viewProduct(product.id_product)">
           <i class="fas fa-eye"></i> Ver detalles
         </button>
         <button class="btn-contact" (click)="viewProduct(product.id_product)">
           <i class="fas fa-comment-alt"></i> Estoy interesado
         </button>
-      </div>
+      </div> -->
     </div>
 
     <div class="product-info">
       <div class="product-header">
         <h3 class="product-title">{{ product.title }}</h3>
-        <span class="product-chip-year" *ngIf="product.year">
-          {{ product.year }}
+        <span class="product-chip-category" *ngIf="product.nameCategory">
+          <i class="fas fa-tag"></i> {{ product.nameCategory }}
         </span>
       </div>
 
       <div class="product-specs">
-        <div class="spec">
+        <div class="spec spec-location">
           <i class="fas fa-map-marker-alt"></i>
-          <span>{{ product.location }}</span>
+          <span class="scrollable-location">{{ product.location }}</span>
         </div>
-        <div class="spec">
-          <i class="fas fa-star"></i> Calidad verificada
+        <div class="spec spec-vendor">
+          <i class="fas fa-store"></i>
+          <span class="scrollable-vendor">{{ product.nameStore || (product.firstName + ' ' + product.lastName) }}</span>
         </div>
       </div>
 
       <div class="product-footer">
-        <div class="product-price-block">
-          <div class="product-price">{{ formatPrice(product.price) }}</div>
-          <div class="product-price-note">Precio referencial en Ecuador</div>
+        <div class="product-price">{{ formatPrice(product.price) }}</div>
+        <div class="product-actions">
+          <button class="btn-action btn-view" (click)="viewProduct(product.id_product)" title="Ver detalles">
+            <i class="fas fa-eye"></i>
+            <span class="btn-text">Ver</span>
+          </button>
+          <button class="btn-action btn-interested" (click)="viewProduct(product.id_product)" title="Estoy interesado">
+            <i class="fas fa-shopping-cart"></i>
+            <span class="btn-text">Interesado</span>
+          </button>
         </div>
-        <button class="btn-primary" (click)="viewProduct(product.id_product)">
-          <i class="fas fa-shopping-cart"></i> Interesado
-        </button>
       </div>
     </div>
 
   </article>
+</div>
+
+<!-- Paginación -->
+<div class="pagination-container" *ngIf="products.length > 0 && !isLoading">
+  <div class="pagination-info">
+    <span>Mostrando {{ (currentPage - 1) * productsPerPage + 1 }} - {{ Math.min(currentPage * productsPerPage, products.length) }} de {{ products.length }} productos</span>
+  </div>
+  
+  <div class="pagination-controls">
+    <button 
+      class="pagination-btn pagination-prev" 
+      (click)="prevPage()" 
+      [disabled]="currentPage === 1"
+      [class.disabled]="currentPage === 1">
+      <i class="fas fa-chevron-left"></i>
+      Anterior
+    </button>
+
+    <div class="pagination-numbers">
+      <button 
+        *ngFor="let page of getPageNumbers()"
+        [class.pagination-number]="page !== -1"
+        [class.pagination-ellipsis]="page === -1"
+        [class.active]="page === currentPage"
+        [disabled]="page === -1"
+        (click)="page !== -1 && goToPage(page)">
+        {{ page === -1 ? '...' : page }}
+      </button>
+    </div>
+
+    <button 
+      class="pagination-btn pagination-next" 
+      (click)="nextPage()" 
+      [disabled]="currentPage === totalPages"
+      [class.disabled]="currentPage === totalPages">
+      Siguiente
+      <i class="fas fa-chevron-right"></i>
+    </button>
+  </div>
 </div>
 
   </div>

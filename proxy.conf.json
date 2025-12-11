@@ -1,8 +1,18 @@
 {
-  "/ecuayapa-ws/*": {
-    "target": "http://localhost:8080",
+  "/api": {
+    "target": "https://siimdhalpha.desarrollohumano.gob.ec",
     "secure": false,
     "changeOrigin": true,
-    "logLevel": "debug"
+    "pathRewrite": {
+      "^/api": ""
+    }
+  },
+  "/images": {
+    "target": "https://ecuayapa.desarrollohumano.gob.ec/emprende/uploads",
+    "secure": false,
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/images": ""
+    }
   }
 }
