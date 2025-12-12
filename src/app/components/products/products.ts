@@ -49,6 +49,8 @@ export class ProductsComponent implements OnInit, AfterViewInit, OnDestroy {
     selectedCategories: [] as string[]
   };
   availableCategories: string[] = [];
+  availableSubcategories: string[] = []; // Subcategorías para la categoría seleccionada
+  selectedSubcategory: string | null = null; // Subcategoría seleccionada
 
   // Productos agrupados por categoría (para vista home)
   categoryGroups: { category: string; products: any[] }[] = [];
@@ -386,6 +388,17 @@ loadProducts(){
     this.availableCategories = Array.from(categoriesSet).sort();
   }
 
+  // Extraer subcategorías para una categoría específica
+  extractSubcategoriesForCategory(category: string) {
+    const subcategoriesSet = new Set<string>();
+    this.allProducts.forEach(product => {
+      if (product.nameCategory === category && product.nameSubCategory) {
+        subcategoriesSet.add(product.nameSubCategory);
+      }
+    });
+    this.availableSubcategories = Array.from(subcategoriesSet).sort();
+  }
+
   toggleCategory(category: string) {
     const index = this.filters.selectedCategories.indexOf(category);
     if (index > -1) {
@@ -426,6 +439,12 @@ loadProducts(){
       filtered = filtered.filter(p => 
         this.filters.selectedCategories.includes(p.nameCategory)
       );
+      hasActiveFilters = true;
+    }
+
+    // Filtrar por subcategoría (solo si una está seleccionada)
+    if (this.selectedSubcategory) {
+      filtered = filtered.filter(p => p.nameSubCategory === this.selectedSubcategory);
       hasActiveFilters = true;
     }
 
@@ -496,6 +515,11 @@ loadProducts(){
     this.currentView = 'grid';
     this.selectedCategoryView = category;
     this.filters.selectedCategories = [category];
+    this.selectedSubcategory = null;
+    
+    // Extraer subcategorías de los productos de esta categoría
+    this.extractSubcategoriesForCategory(category);
+    
     this.applyFilters();
     
     // Scroll al inicio
@@ -505,7 +529,16 @@ loadProducts(){
   backToHome() {
     this.currentView = 'home';
     this.selectedCategoryView = null;
+    this.selectedSubcategory = null;
+    this.availableSubcategories = [];
     this.clearFilters();
+  }
+
+  // Filtrar por subcategoría dentro de la categoría seleccionada
+  filterBySubcategory(subcategory: string | null) {
+    this.selectedSubcategory = subcategory;
+    this.applyFilters();
+    window.scrollTo({ top: 300, behavior: 'smooth' });
   }
 
   scrollCategoryLeft(categoryIndex: number) {

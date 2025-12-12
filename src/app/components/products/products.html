@@ -184,6 +184,12 @@
               <i class="fas fa-store"></i>
               <span>{{ product.nameStore || (product.firstName + ' ' + product.lastName) }}</span>
             </div>
+            <div class="product-actions-horizontal">
+              <button class="btn-action btn-view" (click)="viewProduct(product.id_product); $event.stopPropagation()" title="Ver detalles">
+                <i class="fas fa-eye"></i>
+                <span class="btn-text">Ver detalles</span>
+              </button>
+            </div>
           </div>
         </article>
       </div>
@@ -206,6 +212,25 @@
 
 <!-- ========== VISTA GRID: TODOS LOS PRODUCTOS ========== -->
 <div *ngIf="currentView === 'grid'" class="products-grid">
+
+  <!-- Filtro de subcategorías (solo si hay categoría seleccionada y subcategorías disponibles) -->
+  <div *ngIf="selectedCategoryView && availableSubcategories.length > 0" class="subcategories-filter">
+    <div class="subcategories-container">
+      <button 
+        class="subcategory-btn"
+        [class.active]="selectedSubcategory === null"
+        (click)="filterBySubcategory(null)">
+        Todas
+      </button>
+      <button 
+        *ngFor="let subcat of availableSubcategories; trackBy: trackByIndex"
+        class="subcategory-btn"
+        [class.active]="selectedSubcategory === subcat"
+        (click)="filterBySubcategory(subcat)">
+        {{ subcat }}
+      </button>
+    </div>
+  </div>
 
   <!-- Placeholder cards mientras carga -->
   <ng-container *ngIf="products.length === 0">

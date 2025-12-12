@@ -757,6 +757,49 @@
   gap: 1.75rem;
 }
 
+// Filtro de subcategorías
+.subcategories-filter {
+  grid-column: 1 / -1;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  margin-bottom: 0.5rem;
+}
+
+.subcategories-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.subcategory-btn {
+  padding: 0.6rem 1.2rem;
+  background: #f1f5f9;
+  color: #475569;
+  border: 2px solid transparent;
+  border-radius: 0.8rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+
+  &:hover {
+    background: #e2e8f0;
+    color: #1e293b;
+  }
+
+  &.active {
+    background: linear-gradient(135deg, #2d2d96, #1f1f6b);
+    color: #ffffff;
+    border-color: #2d2d96;
+    box-shadow: 0 4px 12px rgba(45, 45, 150, 0.2);
+  }
+}
+
 .product-card {
   position: relative;
   border-radius: 1.25rem;
@@ -1673,6 +1716,7 @@
   color: #6b7280;
   padding-top: 0.5rem;
   border-top: 1px solid #e5e7eb;
+  margin-bottom: 0.75rem;
 
   i {
     color: #2d2d96;
@@ -1683,6 +1727,55 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+}
+
+// Botón ver detalles en cards horizontales
+.product-actions-horizontal {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: auto;
+  padding-top: 0.75rem;
+  border-top: 1px solid #e5e7eb;
+
+  .btn-action {
+    flex: 1;
+    padding: 0.5rem 0.75rem;
+    background: linear-gradient(135deg, #2d2d96, #1f1f6b);
+    color: #fff;
+    border: none;
+    border-radius: 0.6rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+
+    i {
+      font-size: 0.9rem;
+    }
+
+    .btn-text {
+      display: none;
+      
+      @media (min-width: 768px) {
+        display: inline;
+      }
+    }
+
+    &:hover {
+      background: linear-gradient(135deg, #1f1f6b, #0d0d3d);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(45, 45, 150, 0.25);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
   }
 }
 
