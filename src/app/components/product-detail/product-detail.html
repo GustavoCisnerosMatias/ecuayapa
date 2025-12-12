@@ -6,7 +6,7 @@
   <div class="max-w-7xl mx-auto px-4 py-6">
     <button 
       (click)="goBack()" 
-      class="inline-flex items-center gap-2 text-blue-900 hover:text-red-600 transition-colors duration-300 font-semibold"
+      class="inline-flex items-center gap-2 text-blue-900 hover:text-red-600 transition-colors duration-300 font-semibold btn-back-home"
     >
       <i class="fas fa-arrow-left text-lg"></i>
       Volver
@@ -51,143 +51,122 @@
   </div>
 
   <!-- LOADED STATE -->
-  <div *ngIf="!isLoading && product" class="max-w-7xl mx-auto px-4 py-8">
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+  <div *ngIf="!isLoading && product" class="detail-container">
+    <div class="detail-wrapper">
       <!-- Columna Izquierda: Imagen + Descripción -->
-      <div class="lg:col-span-2 space-y-6">
-        <!-- Imagen y Título/Precio en mobile, solo imagen en desktop -->
-        <div class="bg-white rounded-lg overflow-hidden shadow-lg">
-          <div class="relative">
+      <div class="detail-main">
+        <!-- Card de Imagen -->
+        <div class="product-image-card">
+          <div class="image-container">
             <img 
               [src]="product.img" 
               [alt]="product.title"
               (load)="onImageLoad(product.img)"
               (error)="onImageError(product.img)"
-              class="w-full h-64 md:h-96 lg:h-[500px] object-cover"
+              class="product-image"
             />
             <div 
               *ngIf="!loadedImages[product.img]" 
-              class="absolute inset-0 flex flex-col items-center justify-center bg-gray-100"
+              class="image-placeholder"
             >
-              <i class="fas fa-image text-4xl text-gray-400 mb-2"></i>
-              <p class="text-gray-500 text-sm">No se pudo cargar la imagen</p>
+              <i class="fas fa-image"></i>
+              <p>No se pudo cargar la imagen</p>
             </div>
           </div>
           
           <!-- Título y Precio - Solo visible en mobile -->
-          <div class="lg:hidden p-4 border-t border-gray-200">
-            <h1 class="text-2xl font-bold text-blue-900 mb-2">
-              {{ product.title }}
-            </h1>
-            <div class="flex items-center justify-between mb-3">
-              <div class="text-2xl font-bold text-red-600">
-                {{ formatPrice(product.price || 0) }}
-              </div>
-              <span *ngIf="product.nameCategory" class="bg-blue-100 text-blue-900 px-3 py-1 rounded-full text-xs font-semibold">
-                {{ product.nameCategory }}
-              </span>
+          <div class="product-header-mobile">
+            <h1 class="product-title-mobile">{{ product.title }}</h1>
+            <div class="mobile-price-category">
+              <div class="product-price">{{ formatPrice(product.price || 0) }}</div>
+              <span *ngIf="product.nameCategory" class="category-badge">{{ product.nameCategory }}</span>
             </div>
-            <div class="flex items-center gap-2 text-gray-600 text-sm">
-              <i class="fas fa-map-marker-alt text-red-600"></i>
+            <div class="product-location-mobile">
+              <i class="fas fa-map-marker-alt"></i>
               <span>{{ product.location || 'Ubicación no disponible' }}</span>
             </div>
           </div>
         </div>
 
         <!-- Descripción del Producto -->
-        <div *ngIf="product.descriptionProduct" class="bg-white p-6 rounded-lg shadow-md">
-          <h3 class="text-lg font-semibold text-blue-900 mb-3 flex items-center gap-2">
-            <i class="fas fa-info-circle text-red-600"></i>
-            Descripción del Producto
-          </h3>
-          <p class="text-gray-700 leading-relaxed">{{ product.descriptionProduct }}</p>
+        <div *ngIf="product.descriptionProduct" class="description-card">
+          <div class="card-header">
+            <i class="fas fa-align-left"></i>
+            <h3>Descripción del Producto</h3>
+          </div>
+          <div class="description-content">
+            <p class="description-text">{{ product.descriptionProduct }}</p>
+          </div>
         </div>
       </div>
 
       <!-- Columna Derecha: Info del Producto + Emprendedor + Botones -->
-      <div class="lg:col-span-1 space-y-6">
+      <div class="detail-sidebar">
         <!-- Título y Precio - Solo visible en desktop -->
-        <div class="hidden lg:block bg-white p-6 rounded-lg shadow-md">
-          <h1 class="text-2xl xl:text-3xl font-bold text-blue-900 mb-3">
-            {{ product.title }}
-          </h1>
-          <div class="text-3xl font-bold text-red-600 mb-4">
-            {{ formatPrice(product.price || 0) }}
+        <div class="product-info-card desktop-only">
+          <h1 class="product-title-desktop">{{ product.title }}</h1>
+          <div class="product-price-desktop">{{ formatPrice(product.price || 0) }}</div>
+          <div class="product-location-desktop">
+            <i class="fas fa-map-marker-alt"></i>
+            <span>{{ product.location || 'Ubicación no disponible' }}</span>
           </div>
-          <div class="flex items-center gap-2 text-gray-600 mb-3">
-            <i class="fas fa-map-marker-alt text-red-600"></i>
-            <span class="text-sm">{{ product.location || 'Ubicación no disponible' }}</span>
-          </div>
-          <div *ngIf="product.nameCategory" class="flex items-center gap-2">
-            <span class="inline-block bg-blue-100 text-blue-900 px-3 py-1 rounded-full text-sm font-semibold">
-              <i class="fas fa-tag mr-1"></i>{{ product.nameCategory }}
-            </span>
+          <div *ngIf="product.nameCategory" class="category-badge-desktop">
+            <i class="fas fa-tag"></i> {{ product.nameCategory }}
           </div>
         </div>
 
         <!-- Información del Emprendedor -->
-        <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-lg shadow-md border border-blue-200">
-          <h3 class="text-lg font-semibold text-blue-900 mb-4 flex items-center gap-2">
-            <i class="fas fa-user-tie text-red-600"></i>
-            Emprendedor
-          </h3>
+        <div class="entrepreneur-card">
+          <div class="card-header">
+            <i class="fas fa-user-tie"></i>
+            <h3>Emprendedor</h3>
+          </div>
           
-          <div class="space-y-3">
-            <div>
-              <p class="text-gray-600 text-xs uppercase tracking-wide">Nombre</p>
-              <p class="text-base font-semibold text-blue-900">
-                {{ product.firstName }} {{ product.lastName }}
-              </p>
+          <div class="entrepreneur-content">
+            <div class="entrepreneur-name">
+              <p class="label">Nombre</p>
+              <p class="value">{{ product.firstName }} {{ product.lastName }}</p>
             </div>
 
-            <div *ngIf="product.nameStore" class="pt-2 border-t border-blue-200">
-              <p class="text-gray-600 text-xs uppercase tracking-wide">Tienda</p>
-              <p class="font-semibold text-blue-900">{{ product.nameStore }}</p>
+            <div *ngIf="product.nameStore" class="entrepreneur-store">
+              <p class="label">Tienda</p>
+              <p class="value">{{ product.nameStore }}</p>
             </div>
 
-            <div *ngIf="product.descriptionStore" class="pt-3 border-t border-blue-200">
-              <p class="text-gray-600 text-xs uppercase tracking-wide mb-2">Historia</p>
-              <p class="text-gray-700 text-sm leading-relaxed">{{ product.descriptionStore }}</p>
-            </div>
-
-            <div class="space-y-2 pt-3 border-t border-blue-200">
-              <div *ngIf="product.email" class="flex items-center gap-2">
-                <i class="fas fa-envelope text-red-600 text-sm flex-shrink-0"></i>
-                <a 
-                  [href]="'mailto:' + product.email" 
-                  class="text-blue-900 hover:text-red-600 transition-colors text-sm break-all"
-                >
-                  {{ product.email }}
-                </a>
-              </div>
-              <div *ngIf="product.phone" class="flex items-center gap-2">
-                <i class="fas fa-phone text-red-600 text-sm flex-shrink-0"></i>
-                <a 
-                  [href]="'tel:' + product.phone" 
-                  class="text-blue-900 hover:text-red-600 transition-colors text-sm"
-                >
-                  {{ product.phone }}
-                </a>
+            <!-- Sección expandible de historia -->
+            <div *ngIf="product.descriptionStore" class="entrepreneur-story">
+              <button 
+                class="story-toggle"
+                (click)="toggleStoryExpanded()"
+                [class.expanded]="showFullStory"
+              >
+                <i class="fas" [ngClass]="showFullStory ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+                <span>{{ showFullStory ? 'Ver menos' : 'Ver más' }}</span>
+              </button>
+              
+              <div class="story-content" [class.show]="showFullStory">
+                <p class="label">Mi Historia</p>
+                <p class="story-text">{{ product.descriptionStore }}</p>
               </div>
             </div>
           </div>
         </div>
 
         <!-- Botones de Acción -->
-        <div class="space-y-3">
+        <div class="action-buttons">
           <button 
             (click)="contactWhatsApp()"
-            class="w-full flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
+            class="btn btn-whatsapp"
           >
-            <i class="fab fa-whatsapp text-xl"></i>
-            Contactar por WhatsApp
+            <i class="fab fa-whatsapp"></i>
+            <span>WhatsApp</span>
           </button>
           <button 
             (click)="openShareModal()"
-            class="w-full flex items-center justify-center gap-2 bg-blue-900 hover:bg-blue-800 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
+            class="btn btn-share"
           >
-            <i class="fas fa-share-alt text-lg"></i>
-            Compartir Producto
+            <i class="fas fa-share-alt"></i>
+            <span>Compartir</span>
           </button>
         </div>
       </div>
@@ -195,16 +174,16 @@
   </div>
 
   <!-- ERROR STATE -->
-  <div *ngIf="!isLoading && !product" class="max-w-7xl mx-auto px-4 py-16">
-    <div class="bg-white rounded-lg shadow-md p-12 text-center">
-      <div class="inline-block p-6 bg-gray-100 rounded-full mb-6">
-        <i class="fas fa-shopping-bag text-5xl text-gray-400"></i>
+  <div *ngIf="!isLoading && !product" class="detail-container">
+    <div class="error-card">
+      <div class="error-icon">
+        <i class="fas fa-shopping-bag"></i>
       </div>
-      <h3 class="text-2xl font-bold text-gray-800 mb-3">Producto no encontrado</h3>
-      <p class="text-gray-600 mb-6">El producto que buscas no está disponible o no existe.</p>
+      <h3 class="error-title">Producto no encontrado</h3>
+      <p class="error-message">El producto que buscas no está disponible o no existe.</p>
       <button 
         (click)="goBack()"
-        class="inline-flex items-center gap-2 bg-blue-900 hover:bg-blue-800 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+        class="btn-back-home"
       >
         <i class="fas fa-arrow-left"></i>
         Volver a productos
@@ -215,74 +194,73 @@
   <!-- SHARE MODAL -->
   <div 
     *ngIf="showShareModal && product" 
-    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+    class="share-modal-overlay"
     (click)="closeShareModal()"
   >
     <div 
-      class="bg-white rounded-lg shadow-2xl max-w-md w-full animate-in"
+      class="share-modal"
       (click)="$event.stopPropagation()"
     >
       <!-- Modal Header -->
-      <div class="flex items-center justify-between p-6 border-b border-gray-200">
-        <h2 class="text-2xl font-bold text-blue-900">Compartir Producto</h2>
+      <div class="modal-header-share">
+        <h2>Compartir Producto</h2>
         <button 
           (click)="closeShareModal()"
-          class="text-gray-500 hover:text-gray-700 transition-colors"
+          class="btn-modal-close"
         >
-          <i class="fas fa-times text-2xl"></i>
+          <i class="fas fa-times"></i>
         </button>
       </div>
 
       <!-- Modal Body -->
-      <div class="p-6 space-y-6">
+      <div class="modal-body-share">
         <!-- Product Preview -->
-        <div class="space-y-3">
+        <div class="modal-product-preview">
           <img 
             [src]="product.img" 
             [alt]="product.title"
-            class="w-full h-40 object-cover rounded-lg"
+            class="modal-product-image"
           />
-          <div>
-            <h3 class="font-bold text-blue-900 text-lg">{{ product.title }}</h3>
-            <p class="text-red-600 font-semibold">{{ formatPrice(product.price) }}</p>
-            <p class="text-gray-600 text-sm">
+          <div class="modal-product-info">
+            <h3 class="modal-product-title">{{ product.title }}</h3>
+            <p class="modal-product-price">{{ formatPrice(product.price) }}</p>
+            <p class="modal-product-seller">
               Emprendedor: <strong>{{ product.firstName }} {{ product.lastName }}</strong>
             </p>
           </div>
         </div>
 
         <!-- Share Link -->
-        <div class="space-y-2">
-          <label class="block text-sm font-semibold text-gray-700">Link para compartir:</label>
-          <div class="flex gap-2">
+        <div class="modal-share-link">
+          <label>Link para compartir:</label>
+          <div class="share-link-container">
             <input 
               type="text" 
               [value]="shareLink" 
               readonly
-              class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-600 bg-gray-50"
+              class="share-link-input"
             />
             <button 
               (click)="copyLink()"
-              class="bg-blue-900 hover:bg-blue-800 text-white px-3 py-2 rounded-lg transition-colors flex items-center gap-1"
+              class="btn btn-copy"
             >
-              <i class="fas fa-copy text-sm"></i>
-              Copiar
+              <i class="fas fa-copy"></i>
             </button>
           </div>
         </div>
 
         <!-- Share Actions -->
-        <div class="flex gap-3">
+        <div class="modal-share-actions">
           <button 
             (click)="contactWhatsApp()"
-            class="flex-1 flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+            class="btn btn-whatsapp"
           >
             <i class="fab fa-whatsapp"></i>
-            WhatsApp
+            Compartir por WhatsApp
           </button>
           <button 
             (click)="closeShareModal()"
-            class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-lg transition-colors"
+            class="btn btn-close-modal"
           >
             Cerrar
           </button>

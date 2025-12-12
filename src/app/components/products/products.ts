@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -15,11 +15,13 @@ import { SpinnerComponent } from '../spinner/spinner';
   templateUrl: './products.html',
   styleUrl: './products.scss',
 })
-export class ProductsComponent implements OnInit {
+export class ProductsComponent implements OnInit, AfterViewInit, OnDestroy {
   allProducts: any[] = [];
   products: any[] = [];
   paginatedProducts: any[] = [];
   isLoading: boolean = true;
+  private spinnerStartTime: number = 0;
+  private spinnerTimeout: any = null;
 
   // Vistas: 'home' (secciones por categoría) o 'grid' (todos los productos)
   currentView: 'home' | 'grid' = 'home';
@@ -32,7 +34,11 @@ export class ProductsComponent implements OnInit {
   Math = Math; // Exponer Math para el template
 
   selectedProvince: string | null = null;
-  selectedProvinceName: string | null = null;
+  selectedProvinceName: string = 'Quito - Ecuador';
+
+  // Provincias para selector
+  provinces: Province[] = [];
+  showProvinceDropdown: boolean = false;
 
   // Filtros
   showFilters: boolean = false;
@@ -57,6 +63,16 @@ export class ProductsComponent implements OnInit {
     'Otras Actividades de Servicio'
   ];
 
+  // Buscador de provincias
+  provinceSearch: string = '';
+  get filteredProvinces(): Province[] {
+    if (!this.provinceSearch.trim()) return this.provinces;
+    return this.provinces.filter(p => p.name.toLowerCase().includes(this.provinceSearch.toLowerCase()));
+  }
+
+  // Mostrar botón ir arriba
+  showScrollTop: boolean = false;
+
   constructor(
     private productService: ProductService,
     private route: ActivatedRoute,
@@ -67,25 +83,48 @@ export class ProductsComponent implements OnInit {
   ) {}
 
 ngOnInit(): void {
-  //this.getLocation();
-  this.loadProductsFromSOAP();
+  // Cargar provincias del servicio
+  this.provinces = this.locationService.provinces;
+  this.showSpinnerMin3s(() => this.loadProductsFromSOAP());
 }
 
+
 loadProductsFromSOAP() {
-  this.isLoading = true;
   this.productService.getProductByIdSOAP().subscribe({
     next: (soapResponse: string) => {
       console.log('Respuesta SOAP recibida');
       this.parseAndLoadProducts(soapResponse);
-      this.isLoading = false;
+      this.hideSpinnerMin3s();
       this.cdr.detectChanges();
     },
     error: (err) => {
       console.error('Error en SOAP:', err);
-      this.isLoading = false;
+      this.hideSpinnerMin3s();
       this.cdr.detectChanges();
     }
   });
+}
+
+// Controla que el spinner esté al menos 3 segundos
+showSpinnerMin3s(loadFn: () => void) {
+  this.isLoading = true;
+  this.spinnerStartTime = Date.now();
+  loadFn();
+}
+
+hideSpinnerMin3s() {
+  const elapsed = Date.now() - this.spinnerStartTime;
+  const minDuration = 3000;
+  if (elapsed >= minDuration) {
+    this.isLoading = false;
+  } else {
+    if (this.spinnerTimeout) clearTimeout(this.spinnerTimeout);
+    this.spinnerTimeout = setTimeout(() => {
+      this.isLoading = false;
+      this.spinnerTimeout = null;
+      this.cdr.detectChanges();
+    }, minDuration - elapsed);
+  }
 }
 
 parseAndLoadProducts(soapXml: string) {
@@ -479,5 +518,136 @@ loadProducts(){
     if (container) {
       container.scrollBy({ left: 300, behavior: 'smooth' });
     }
+  }
+
+  // Categorías principales para navegación rápida
+  mainCategories: any[] = [
+    { id_category: 33, name_category: 'Alimentos y Bebidas', icon: 'fa-utensils' },
+    { id_category: 32, name_category: 'Hoteles y Alojamientos', icon: 'fa-hotel' },
+    { id_category: 14, name_category: 'Comercio', icon: 'fa-shopping-bag' },
+    { id_category: 2, name_category: 'Agropecuaria', icon: 'fa-seedling' },
+    { id_category: 5, name_category: 'Manufactura', icon: 'fa-industry' },
+    { id_category: 37, name_category: 'Otras Actividades de Servicio', icon: 'fa-briefcase' }
+  ];
+
+  // TrackBy functions para optimización de ngFor
+  trackByProductId(index: number, item: any): any {
+    return item.id_product || index;
+  }
+
+  trackByCategoryIndex(index: number, item: any): any {
+    return item.category || index;
+  }
+
+  trackByPageNumber(index: number, item: number): number {
+    return item;
+  }
+
+  trackByIndex(index: number, item: any): number {
+    return index;
+  }
+
+  trackByProvinceId(index: number, item: Province): number {
+    return item.id;
+  }
+
+  // Obtener icono según la categoría
+  getCategoryIcon(categoryId: number): string {
+    const category = this.mainCategories.find(c => c.id_category === categoryId);
+    return category ? category.icon : 'fa-tag';
+  }
+
+  // Navegar a una categoría y hacer scroll
+  scrollToCategory(categoryName: string): void {
+    // Buscar el índice del grupo de categoría por nombre
+    const groupIndex = this.categoryGroups.findIndex(
+      group => group.category === categoryName
+    );
+    
+    if (groupIndex !== -1) {
+      // Hacer scroll hacia el elemento usando el índice
+      setTimeout(() => {
+        const sections = document.querySelectorAll('.category-section');
+        if (sections[groupIndex]) {
+          const headerOffset = 100; // Offset para el header fijo
+          const elementPosition = sections[groupIndex].getBoundingClientRect().top;
+          const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+          
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+          });
+        }
+      }, 50);
+    }
+  }
+
+  // Toggle dropdown de provincias
+  toggleProvinceDropdown(): void {
+    this.showProvinceDropdown = !this.showProvinceDropdown;
+  }
+
+  // Seleccionar provincia
+  selectProvince(province: Province): void {
+    this.selectedProvince = province.name;
+    this.selectedProvinceName = `${province.name} - Ecuador`;
+    this.showProvinceDropdown = false;
+    
+    // Filtrar productos por provincia
+    this.filterProductsByProvince(province.name);
+  }
+
+  // Filtrar productos por provincia
+  filterProductsByProvince(provinceName: string): void {
+    if (provinceName) {
+      this.products = this.allProducts.filter(product => 
+        product.location?.toLowerCase().includes(provinceName.toLowerCase())
+      );
+    } else {
+      this.products = [...this.allProducts];
+    }
+    
+    // Reagrupar por categorías
+    this.groupProductsByCategory();
+    this.calculatePagination();
+    this.updatePaginatedProducts();
+    this.cdr.detectChanges();
+  }
+
+  // Limpiar filtro de provincia (ver todos)
+  clearProvinceFilter(): void {
+    this.selectedProvince = null;
+    this.selectedProvinceName = 'Ecuador';
+    this.showProvinceDropdown = false;
+    this.products = [...this.allProducts];
+    this.groupProductsByCategory();
+    this.calculatePagination();
+    this.updatePaginatedProducts();
+    this.cdr.detectChanges();
+  }
+
+  // Cerrar dropdown al hacer click fuera
+  closeDropdownOnClickOutside(event: Event): void {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.location-selector')) {
+      this.showProvinceDropdown = false;
+    }
+  }
+
+  ngAfterViewInit(): void {
+    window.addEventListener('scroll', this.onWindowScroll, true);
+  }
+
+  ngOnDestroy(): void {
+    window.removeEventListener('scroll', this.onWindowScroll, true);
+  }
+
+  onWindowScroll = () => {
+    this.showScrollTop = window.scrollY > 300;
+    this.cdr.detectChanges();
+  };
+
+  scrollToTop(): void {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 }

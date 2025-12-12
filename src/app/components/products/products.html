@@ -1,7 +1,7 @@
 <!-- Spinner de carga -->
 <app-spinner [show]="isLoading" [message]="'Cargando productos...'"></app-spinner>
 
-<section class="products-section">
+<section class="products-section" (click)="closeDropdownOnClickOutside($event)">
   <div class="products-container">
 
     <!-- Botón Volver (solo en vista grid) -->
@@ -10,19 +10,69 @@
       <span>Volver al inicio</span>
     </button>
 
-    <div class="products-toolbar">
-      <div class="products-counter">
-        <span class="counter-pill">
-          <i class="fas fa-box-open"></i>
-          <span *ngIf="currentView === 'home'">{{ allProducts.length }} productos disponibles</span>
-          <span *ngIf="currentView === 'grid'">{{ products.length }} productos encontrados</span>
-          <span *ngIf="selectedProvinceName"> en {{selectedProvinceName}}</span>
-        </span>
+    <!-- Header con ubicación y contador -->
+    <div class="products-header-bar">
+      <!-- Selector de ubicación -->
+      <div class="location-selector" [class.open]="showProvinceDropdown">
+        <button class="location-btn" (click)="toggleProvinceDropdown()">
+          <i class="fas fa-map-marker-alt"></i>
+          <span class="location-text">{{ selectedProvinceName }}</span>
+          <i class="fas fa-chevron-down chevron-icon"></i>
+        </button>
+        
+        <!-- Dropdown de provincias -->
+        <div class="province-dropdown" *ngIf="showProvinceDropdown">
+          <div class="dropdown-header">
+            <span>Seleccionar Provincia</span>
+            <button class="btn-all-ecuador" (click)="clearProvinceFilter()">
+              <!-- <i class="fas fa-globe-americas"></i>Ecuador -->
+               Ecuador
+               <img src="assets/pilares1.png" class="ecuador-flag"/>
+            </button>
+          </div>
+
+          <!-- Buscador de provincias -->
+          <div class="province-search-box">
+            <input type="text" [(ngModel)]="provinceSearch" placeholder="Buscar provincia..." class="province-search-input" />
+            <i class="fas fa-search search-icon"></i>
+          </div>
+
+          <div class="provinces-list">
+            <button 
+              *ngFor="let province of filteredProvinces; trackBy: trackByProvinceId"
+              class="province-item"
+              [class.active]="selectedProvince === province.name"
+              (click)="selectProvince(province)">
+              <i class="fas fa-map-pin"></i>
+              {{ province.name }}
+            </button>
+          </div>
+        </div>
       </div>
 
-      <button class="btn-filters" (click)="toggleFilters()">
-        <i class="fas fa-filter"></i>
-        <span>Filtros</span>
+      <!-- Contador y filtros -->
+      <div class="header-right">
+        <span class="counter-pill">
+          <i class="fas fa-box-open"></i>
+          <span *ngIf="currentView === 'home'">{{ allProducts.length }} productos</span>
+          <span *ngIf="currentView === 'grid'">{{ products.length }} productos</span>
+        </span>
+        
+        <button class="btn-filters" (click)="toggleFilters()">
+          <i class="fas fa-sliders-h"></i>
+          <span>Filtros</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Navegación rápida de categorías principales -->
+    <div class="main-categories-nav" *ngIf="currentView === 'home'">
+      <button 
+        *ngFor="let category of mainCategories; trackBy: trackByIndex"
+        class="category-nav-btn"
+        (click)="scrollToCategory(category.name_category)">
+        <i class="fas" [ngClass]="getCategoryIcon(category.id_category)"></i>
+        <span>{{ category.name_category }}</span>
       </button>
     </div>
 
@@ -36,11 +86,10 @@
       </div>
 
       <div class="filters-content">
-        <!-- Columna Izquierda: Título y Precios -->
+        <!-- Búsqueda por título y precios -->
         <div class="filters-column">
-          <!-- Búsqueda por título -->
           <div class="filter-group">
-            <label><i class="fas fa-search"></i> Buscar por título</label>
+            <label><i class="fas fa-search"></i> Buscar por producto</label>
             <input 
               type="text" 
               class="filter-input" 
@@ -48,11 +97,7 @@
               [(ngModel)]="filters.searchText"
               (input)="applyFilters()"
             />
-          </div>
-
-          <!-- Filtro de precios -->
-          <div class="filter-group">
-            <label><i class="fas fa-dollar-sign"></i> Rango de precios</label>
+             <label><i class="fas fa-dollar-sign"></i> Rango de precios</label>
             <div class="price-inputs">
               <input 
                 type="number" 
@@ -71,23 +116,10 @@
                 (input)="applyFilters()"
                 min="0"
               />
-            </div>
           </div>
-        </div>
 
-        <!-- Columna Derecha: Categorías -->
-        <div class="filters-column">
-          <div class="filter-group filter-group-full">
-            <label><i class="fas fa-tags"></i> Categorías</label>
-            <div class="categories-list">
-              <button 
-                *ngFor="let category of availableCategories"
-                class="category-chip"
-                [class.active]="filters.selectedCategories.includes(category)"
-                (click)="toggleCategory(category)"
-              >
-                {{ category }}
-              </button>
+          <div class="filter-group">
+           
             </div>
           </div>
         </div>
@@ -98,7 +130,7 @@
 <div *ngIf="currentView === 'home' && !isLoading" class="home-view">
   
   <!-- Categorías con productos -->
-  <div *ngFor="let group of categoryGroups; let idx = index" class="category-section">
+  <div *ngFor="let group of categoryGroups; let idx = index; trackBy: trackByCategoryIndex" class="category-section">
     <div class="category-header">
       <h2 class="category-title">
         <i class="fas fa-th-large"></i>
@@ -118,7 +150,7 @@
       <div class="category-products-horizontal category-scroll-{{idx}}">
         <article
           class="product-card-horizontal"
-          *ngFor="let product of group.products"
+          *ngFor="let product of group.products; trackBy: trackByProductId"
           [class.featured]="product.featured"
           (click)="viewProduct(product.id_product)">
 
@@ -143,7 +175,9 @@
             <h3 class="product-title-horizontal">{{ product.title }}</h3>
             <div class="product-location-horizontal">
               <i class="fas fa-map-marker-alt"></i>
-              <span>{{ product.location }}</span>
+              <div class="text-scroll-container-h">
+                <span class="scroll-text-h">{{ product.location }}</span>
+              </div>
             </div>
             <div class="product-price-horizontal">{{ formatPrice(product.price) }}</div>
             <div class="product-vendor-horizontal">
@@ -213,7 +247,7 @@
   <!-- Productos reales -->
   <article
     class="product-card"
-    *ngFor="let product of paginatedProducts"
+    *ngFor="let product of paginatedProducts; trackBy: trackByProductId"
     [class.featured]="product.featured">
 
     <div class="product-card-glow"></div>
@@ -234,14 +268,6 @@
       <div class="image-fallback">
         <i class="fas fa-shopping-bag"></i>
       </div>
-      <!-- <div class="product-overlay">
-        <button class="btn-view" (click)="viewProduct(product.id_product)">
-          <i class="fas fa-eye"></i> Ver detalles
-        </button>
-        <button class="btn-contact" (click)="viewProduct(product.id_product)">
-          <i class="fas fa-comment-alt"></i> Estoy interesado
-        </button>
-      </div> -->
     </div>
 
     <div class="product-info">
@@ -255,11 +281,15 @@
       <div class="product-specs">
         <div class="spec spec-location">
           <i class="fas fa-map-marker-alt"></i>
-          <span class="scrollable-location">{{ product.location }}</span>
+          <div class="text-scroll-container">
+            <span class="scroll-text">{{ product.location }}</span>
+          </div>
         </div>
         <div class="spec spec-vendor">
           <i class="fas fa-store"></i>
-          <span class="scrollable-vendor">{{ product.nameStore || (product.firstName + ' ' + product.lastName) }}</span>
+          <div class="text-scroll-container">
+            <span class="scroll-text">{{ product.nameStore || (product.firstName + ' ' + product.lastName) }}</span>
+          </div>
         </div>
       </div>
 
@@ -270,10 +300,6 @@
             <i class="fas fa-eye"></i>
             <span class="btn-text">Ver detalles</span>
           </button>
-          <!-- <button class="btn-action btn-interested" (click)="viewProduct(product.id_product)" title="Estoy interesado">
-            <i class="fas fa-shopping-cart"></i>
-            <span class="btn-text">Interesado</span>
-          </button> -->
         </div>
       </div>
     </div>
@@ -299,7 +325,7 @@
 
     <div class="pagination-numbers">
       <button 
-        *ngFor="let page of getPageNumbers()"
+        *ngFor="let page of getPageNumbers(); trackBy: trackByPageNumber"
         [class.pagination-number]="page !== -1"
         [class.pagination-ellipsis]="page === -1"
         [class.active]="page === currentPage"
@@ -319,6 +345,11 @@
     </button>
   </div>
 </div>
+
+<!-- Botón flotante Ir Arriba -->
+<button *ngIf="showScrollTop" class="scroll-to-top-btn" (click)="scrollToTop()" aria-label="Ir arriba" title="Ir arriba">
+  <i class="fas fa-arrow-up"></i>
+</button>
 
   </div>
 </section>

@@ -1,54 +1,394 @@
 <section class="vender-section">
   <div class="container">
+    
+    <!-- Header con título -->
     <div class="vender-header">
-      <h1>Vende tu Producto</h1>
-      <p>Completa el formulario para publicar tu  en ECUAYAPA</p>
+      <h1><i class="fas fa-store"></i> Registra tu Emprendimiento</h1>
+      <p>Completa el formulario en dos pasos para publicar tus productos en ECUAYAPA</p>
+    </div>
+
+    <!-- Indicador de pasos -->
+    <div class="steps-indicator">
+      <div class="step" [class.active]="currentStep === 1" [class.completed]="currentStep > 1">
+        <div class="step-number">
+          <span *ngIf="currentStep <= 1">1</span>
+          <i *ngIf="currentStep > 1" class="fas fa-check"></i>
+        </div>
+        <span class="step-label">Emprendedor</span>
+      </div>
+      <div class="step-line" [class.active]="currentStep > 1"></div>
+      <div class="step" [class.active]="currentStep === 2">
+        <div class="step-number">2</div>
+        <span class="step-label">Productos</span>
+      </div>
     </div>
 
     <div class="vender-content">
-      <form class="vender-form">
+      
+      <!-- ========== PASO 1: INFORMACIÓN DEL EMPRENDEDOR ========== -->
+      <form class="vender-form" *ngIf="currentStep === 1">
+        <h2 class="section-title"><i class="fas fa-user-tie"></i> Información del Emprendedor</h2>
+
+        <!-- Cédula -->
         <div class="form-group">
-          <label for="marca">Marca del Producto</label>
-          <input type="text" id="marca" placeholder="Ej: Toyota" />
+          <label for="cedula"><i class="fas fa-id-card"></i> Cédula</label>
+          <input 
+            type="text" 
+            id="cedula" 
+            [(ngModel)]="seller.cedula"
+            name="cedula"
+            placeholder="Ej: 1712345678"
+            maxlength="10"
+            [class.error]="errors['cedula']"
+          />
+          <span class="char-count">{{ seller.cedula.length }}/10</span>
+          <span class="error-msg" *ngIf="errors['cedula']">{{ errors['cedula'] }}</span>
         </div>
 
-        <div class="form-group">
-          <label for="modelo">Modelo</label>
-          <input type="text" id="modelo" placeholder="Ej: Corolla" />
-        </div>
-
+        <!-- Nombres y Apellidos -->
         <div class="form-row">
           <div class="form-group">
-            <label for="year">Año</label>
-            <input type="number" id="year" placeholder="2023" />
+            <label for="firstName"><i class="fas fa-user"></i> Nombres</label>
+            <input 
+              type="text" 
+              id="firstName" 
+              [(ngModel)]="seller.firstName"
+              name="firstName"
+              placeholder="Ej: Julio Jose"
+              [class.error]="errors['firstName']"
+            />
+            <span class="error-msg" *ngIf="errors['firstName']">{{ errors['firstName'] }}</span>
           </div>
           <div class="form-group">
-            <label for="precio">Precio (USD)</label>
-            <input type="number" id="precio" placeholder="25000" />
+            <label for="lastName"><i class="fas fa-user"></i> Apellidos</label>
+            <input 
+              type="text" 
+              id="lastName" 
+              [(ngModel)]="seller.lastName"
+              name="lastName"
+              placeholder="Ej: Cordova Velez"
+              [class.error]="errors['lastName']"
+            />
+            <span class="error-msg" *ngIf="errors['lastName']">{{ errors['lastName'] }}</span>
           </div>
         </div>
 
+        <!-- Nombre del emprendimiento -->
         <div class="form-group">
-          <label for="kilometraje">Kilometraje</label>
-          <input type="number" id="kilometraje" placeholder="15000" />
+          <label for="storeName"><i class="fas fa-store-alt"></i> Nombre del Emprendimiento</label>
+          <input 
+            type="text" 
+            id="storeName" 
+            [(ngModel)]="seller.storeName"
+            name="storeName"
+            placeholder="Ej: Sportique"
+            [class.error]="errors['storeName']"
+          />
+          <span class="error-msg" *ngIf="errors['storeName']">{{ errors['storeName'] }}</span>
         </div>
 
-        <div class="form-group">
-          <label for="ubicacion">Ubicación</label>
-          <select id="ubicacion">
-            <option>Selecciona una provincia</option>
-            <option>Pichincha</option>
-            <option>Guayas</option>
-            <option>Azuay</option>
-            <option>Tungurahua</option>
-            <option>Santo Domingo</option>
-          </select>
+        <!-- Ubicación: Provincia, Cantón, Parroquia -->
+        <h3 class="subsection-title"><i class="fas fa-map-marker-alt"></i> Ubicación</h3>
+        
+        <div class="form-row form-row-3">
+          <div class="form-group">
+            <label for="province">Provincia</label>
+            <select 
+              id="province" 
+              [(ngModel)]="seller.province"
+              name="province"
+              (change)="onProvinceChange()"
+              [class.error]="errors['province']"
+            >
+              <option value="">Selecciona</option>
+              <option *ngFor="let prov of provinces" [value]="prov.name">{{ prov.name }}</option>
+            </select>
+            <span class="error-msg" *ngIf="errors['province']">{{ errors['province'] }}</span>
+          </div>
+          <div class="form-group">
+            <label for="canton">Cantón</label>
+            <select 
+              id="canton" 
+              [(ngModel)]="seller.canton"
+              name="canton"
+              (change)="onCantonChange()"
+              [disabled]="!seller.province"
+              [class.error]="errors['canton']"
+            >
+              <option value="">Selecciona</option>
+              <option *ngFor="let cant of cantons" [value]="cant.name">{{ cant.name }}</option>
+            </select>
+            <span class="error-msg" *ngIf="errors['canton']">{{ errors['canton'] }}</span>
+          </div>
+          <div class="form-group">
+            <label for="parish">Parroquia</label>
+            <select 
+              id="parish" 
+              [(ngModel)]="seller.parish"
+              name="parish"
+              [disabled]="!seller.canton"
+            >
+              <option value="">Selecciona</option>
+              <option *ngFor="let par of parishes" [value]="par.name">{{ par.name }}</option>
+            </select>
+          </div>
         </div>
 
-        <button type="submit" class="btn-submit">
-          <i class="fas fa-check"></i> Publicar Anuncio
-        </button>
+        <!-- Dirección -->
+        <div class="form-group">
+          <label for="address"><i class="fas fa-home"></i> Dirección</label>
+          <input 
+            type="text" 
+            id="address" 
+            [(ngModel)]="seller.address"
+            name="address"
+            placeholder="Ej: Machachi, Sangolqui, Ecuador"
+          />
+        </div>
+
+        <!-- Contacto -->
+        <h3 class="subsection-title"><i class="fas fa-phone-alt"></i> Contacto</h3>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="phone"><i class="fas fa-mobile-alt"></i> Celular</label>
+            <input 
+              type="tel" 
+              id="phone" 
+              [(ngModel)]="seller.phone"
+              name="phone"
+              placeholder="Ej: 0991234567"
+              maxlength="10"
+              [class.error]="errors['phone']"
+            />
+            <span class="char-count">{{ seller.phone.length }}/10</span>
+            <span class="error-msg" *ngIf="errors['phone']">{{ errors['phone'] }}</span>
+          </div>
+          <div class="form-group">
+            <label for="email"><i class="fas fa-envelope"></i> Correo Electrónico</label>
+            <input 
+              type="email" 
+              id="email" 
+              [(ngModel)]="seller.email"
+              name="email"
+              placeholder="Ej: example@gmail.com"
+              [class.error]="errors['email']"
+            />
+            <span class="error-msg" *ngIf="errors['email']">{{ errors['email'] }}</span>
+          </div>
+        </div>
+
+        <!-- Historia del emprendedor -->
+        <div class="form-group">
+          <label for="history"><i class="fas fa-book-open"></i> Historia del Emprendedor</label>
+          <textarea 
+            id="history" 
+            [(ngModel)]="seller.history"
+            name="history"
+            rows="4"
+            placeholder="Cuéntanos tu historia, cómo iniciaste tu emprendimiento..."
+          ></textarea>
+        </div>
+
+        <!-- Horarios de atención -->
+        <h3 class="subsection-title"><i class="fas fa-clock"></i> Horarios de Atención</h3>
+        
+        <div class="schedule-grid">
+          <div class="schedule-item">
+            <label>Lunes</label>
+            <input type="text" [(ngModel)]="seller.schedule.monday" name="monday" placeholder="Ej: 8am - 7pm" />
+          </div>
+          <div class="schedule-item">
+            <label>Martes</label>
+            <input type="text" [(ngModel)]="seller.schedule.tuesday" name="tuesday" placeholder="Ej: 8am - 7pm" />
+          </div>
+          <div class="schedule-item">
+            <label>Miércoles</label>
+            <input type="text" [(ngModel)]="seller.schedule.wednesday" name="wednesday" placeholder="Ej: 8am - 7pm" />
+          </div>
+          <div class="schedule-item">
+            <label>Jueves</label>
+            <input type="text" [(ngModel)]="seller.schedule.thursday" name="thursday" placeholder="Ej: 8am - 7pm" />
+          </div>
+          <div class="schedule-item">
+            <label>Viernes</label>
+            <input type="text" [(ngModel)]="seller.schedule.friday" name="friday" placeholder="Ej: 8am - 7pm" />
+          </div>
+          <div class="schedule-item">
+            <label>Sábado</label>
+            <input type="text" [(ngModel)]="seller.schedule.saturday" name="saturday" placeholder="Ej: 9am - 5pm" />
+          </div>
+          <div class="schedule-item">
+            <label>Domingo</label>
+            <input type="text" [(ngModel)]="seller.schedule.sunday" name="sunday" placeholder="Ej: Cerrado" />
+          </div>
+        </div>
+
+        <!-- Imagen de la tienda -->
+        <div class="form-group">
+          <label><i class="fas fa-image"></i> Imagen del Emprendimiento (Tienda)</label>
+          <div class="image-upload-area" (click)="storeImageInput.click()">
+            <input 
+              type="file" 
+              #storeImageInput 
+              (change)="onStoreImageChange($event)" 
+              accept="image/*" 
+              hidden
+            />
+            <div class="upload-placeholder" *ngIf="!seller.storeImagePreview">
+              <i class="fas fa-cloud-upload-alt"></i>
+              <span>Elige un archivo o arrástralo aquí</span>
+            </div>
+            <img *ngIf="seller.storeImagePreview" [src]="seller.storeImagePreview" alt="Preview" class="image-preview" />
+          </div>
+        </div>
+
+        <!-- Botón Siguiente -->
+        <div class="form-actions">
+          <button type="button" class="btn-next" (click)="nextStep()">
+            Siguiente <i class="fas fa-arrow-right"></i>
+          </button>
+        </div>
       </form>
+
+      <!-- ========== PASO 2: PRODUCTOS ========== -->
+      <form class="vender-form" *ngIf="currentStep === 2">
+        <h2 class="section-title"><i class="fas fa-boxes"></i> Tus Productos</h2>
+        <p class="section-subtitle">Puedes agregar hasta {{ maxProducts }} productos</p>
+
+        <div class="products-counter">
+          <span class="counter-badge">{{ products.length }}/{{ maxProducts }}</span>
+        </div>
+
+        <!-- Lista de productos -->
+        <div class="products-list">
+          <div 
+            class="product-form-card" 
+            *ngFor="let product of products; let i = index; trackBy: trackByProductId"
+          >
+            <div class="product-card-header">
+              <h4><i class="fas fa-box"></i> Producto {{ i + 1 }}</h4>
+              <button 
+                type="button" 
+                class="btn-remove-product" 
+                (click)="removeProduct(i)"
+                *ngIf="products.length > 1"
+                title="Eliminar producto"
+              >
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </div>
+
+            <div class="product-card-body">
+              <!-- Categoría y Subcategoría -->
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Categoría</label>
+                  <select 
+                    [(ngModel)]="product.category"
+                    [name]="'category_' + i"
+                    [class.error]="errors['product_' + i + '_category']"
+                  >
+                    <option value="">Selecciona</option>
+                    <option *ngFor="let cat of categories" [value]="cat.name">{{ cat.name }}</option>
+                  </select>
+                  <span class="error-msg" *ngIf="errors['product_' + i + '_category']">{{ errors['product_' + i + '_category'] }}</span>
+                </div>
+                <div class="form-group">
+                  <label>Subcategoría</label>
+                  <select 
+                    [(ngModel)]="product.subcategory"
+                    [name]="'subcategory_' + i"
+                    [disabled]="!product.category"
+                  >
+                    <option value="">Selecciona</option>
+                    <option *ngFor="let sub of getSubcategories(product.category)" [value]="sub">{{ sub }}</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Nombre y Precio -->
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Nombre del Producto</label>
+                  <input 
+                    type="text" 
+                    [(ngModel)]="product.name"
+                    [name]="'name_' + i"
+                    placeholder="Ej: Cactus decorativo"
+                    [class.error]="errors['product_' + i + '_name']"
+                  />
+                  <span class="error-msg" *ngIf="errors['product_' + i + '_name']">{{ errors['product_' + i + '_name'] }}</span>
+                </div>
+                <div class="form-group">
+                  <label>Precio (USD)</label>
+                  <input 
+                    type="number" 
+                    [(ngModel)]="product.price"
+                    [name]="'price_' + i"
+                    placeholder="Ej: 10.00"
+                    min="0"
+                    step="0.01"
+                    [class.error]="errors['product_' + i + '_price']"
+                  />
+                  <span class="error-msg" *ngIf="errors['product_' + i + '_price']">{{ errors['product_' + i + '_price'] }}</span>
+                </div>
+              </div>
+
+              <!-- Descripción -->
+              <div class="form-group">
+                <label>Descripción del Producto</label>
+                <textarea 
+                  [(ngModel)]="product.description"
+                  [name]="'description_' + i"
+                  rows="3"
+                  placeholder="Describe tu producto..."
+                ></textarea>
+              </div>
+
+              <!-- Imagen del producto -->
+              <div class="form-group">
+                <label>Imagen del Producto</label>
+                <div class="image-upload-area image-upload-small" (click)="productImageInput.click()">
+                  <input 
+                    type="file" 
+                    #productImageInput 
+                    (change)="onProductImageChange($event, i)" 
+                    accept="image/*" 
+                    hidden
+                  />
+                  <div class="upload-placeholder" *ngIf="!product.imagePreview">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <span>Elige un archivo</span>
+                  </div>
+                  <img *ngIf="product.imagePreview" [src]="product.imagePreview" alt="Preview" class="image-preview" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Botón agregar producto -->
+        <button 
+          type="button" 
+          class="btn-add-product" 
+          (click)="addProduct()"
+          [disabled]="products.length >= maxProducts"
+        >
+          <i class="fas fa-plus-circle"></i> Agregar Producto
+        </button>
+
+        <!-- Botones de navegación -->
+        <div class="form-actions form-actions-between">
+          <button type="button" class="btn-prev" (click)="prevStep()">
+            <i class="fas fa-arrow-left"></i> Anterior
+          </button>
+          <button type="button" class="btn-submit" (click)="submitForm()">
+            <i class="fas fa-paper-plane"></i> Guardar y Publicar
+          </button>
+        </div>
+      </form>
+
     </div>
   </div>
 </section>

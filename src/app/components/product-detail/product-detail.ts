@@ -22,6 +22,7 @@ export class ProductDetailComponent implements OnInit {
   isLoading = true;
   shareLink = '';
   showShareModal = false;
+  showFullStory = false;
   loadedImages: { [key: string]: boolean } = {};
 
   constructor(
@@ -248,6 +249,10 @@ export class ProductDetailComponent implements OnInit {
     navigator.clipboard.writeText(this.shareLink).then(() => {
       this.Sweetalert2Service.success('Enlace copiado', 'El enlace del producto ha sido copiado al portapapeles.');
     });
+  }
+
+  toggleStoryExpanded() {
+    this.showFullStory = !this.showFullStory;
   }
 
   contactWhatsApp() {

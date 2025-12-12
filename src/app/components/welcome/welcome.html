@@ -13,35 +13,39 @@
     </div>
 
     <div class="map-and-info">
-      <div #mapContainer class="map"></div>
+      <!-- Contenedor del mapa -->
+      <div class="map-container">
+        <div #mapContainer class="map"></div>
 
-      <button class="btn-change-location-overlay" (click)="activateChangeLocationMode()" 
-              [class.active]="changeLocationMode"
-              *ngIf="pointSelected"
-              title="Hacer clic en el mapa para cambiar tu ubicación">
-        <span class="change-location-text">Cambiar ubicación</span>
-        <div class="icon-button">
-          <i class="fa-solid fa-map-pin "></i>
-        </div>
-      </button>
+        <!-- Botón "Cambiar ubicación" - Siempre visible sobre el mapa -->
+        <button class="btn-change-location-overlay" 
+                (click)="activateChangeLocationMode()" 
+                [class.active]="changeLocationMode"
+                *ngIf="pointSelected"
+                [title]="changeLocationMode ? 'Haz clic en el mapa para cambiar' : 'Activar modo cambiar ubicación'">
+          <i class="fa-solid fa-map-pin"></i>
+          <span class="change-location-text">{{ changeLocationMode ? 'Selecciona en el mapa' : 'Cambiar ubicación' }}</span>
+        </button>
+      </div>
 
+      <!-- Panel lateral de información -->
       <div class="info">
         <div class="glass">
 
-          <!-- Control de rango del círculo - SIEMPRE VISIBLE -->
+          <!-- Control de rango del círculo -->
           <div class="range-control">
             <label>Rango de búsqueda: <strong>{{ circleRadius }} km</strong></label>
-            <input type="range" min="3" max="15" [(ngModel)]="circleRadius" (change)="updateCircleRadius()" class="slider">
+            <input type="range" min="3" max="100" [(ngModel)]="circleRadius" (input)="updateCircleRadius()" class="slider">
             <div class="range-labels">
               <span>3 km</span>
-              <span>10 km</span>
+              <span>100 km</span>
             </div>
           </div>
 
           <!-- Lista de ubicaciones cercanas -->
           <div class="nearby-list">
             <div class="nearby-header">
-              <h4>Emprendimientos cercanos</h4>
+              <h4><i class="fas fa-store"></i> Emprendimientos cercanos ({{ filteredLocations.length }})</h4>
             </div>
 
             <!-- Buscador y filtros -->
@@ -52,31 +56,42 @@
                   type="text" 
                   [(ngModel)]="searchQuery" 
                   (input)="filterLocations()"
-                  placeholder="Buscar por nombre o descripción..."
+                  placeholder="Buscar..."
                   class="search-input">
               </div>
               <button class="btn-filters" (click)="toggleFilterModal()" title="Agregar filtros">
-                <i class="fa-solid fa-sliders "></i>
+                <i class="fa-solid fa-sliders"></i>
               </button>
             </div>
 
-            <!-- Lista filtrada de emprendimientos -->
-            <div class="location-item" *ngFor="let loc of filteredLocations" (click)="openLocationModal(loc)">
-              <div class="location-marker">
-                <i class="fa-solid fa-store"></i>
+            <!-- Contenedor scrolleable para items -->
+            <div class="nearby-items-scroll">
+              <!-- Lista filtrada de emprendimientos -->
+              <div class="location-item" *ngFor="let loc of filteredLocations" (click)="openLocationModal(loc)">
+                <div class="location-marker">
+                  <i class="fas fa-shopping-basket"></i>
+                </div>
+                <div class="location-info">
+                  <p class="location-name">{{ loc.title }}</p>
+                  <p class="location-seller" *ngIf="loc.seller_name">
+                    <i class="fas fa-user"></i> {{ loc.seller_name }}
+                  </p>
+                  <p class="location-type">{{ loc.category_name }}</p>
+                  <p class="location-distance">📍 {{ loc.distance }}</p>
+                </div>
+                <div class="location-price">
+                  {{ formatPrice(loc.price) }}
+                </div>
               </div>
-              <div class="location-info">
-                <p class="location-name">{{ loc.title }}</p>
-                <p class="location-type">{{ loc.category_name }}</p>
-                <p class="location-distance">📍 {{ loc.distance }}</p>
-                <p class="location-desc">{{ loc.description | slice:0:60 }}...</p>
+
+              <!-- Mensaje si no hay resultados -->
+              <div class="no-results" *ngIf="filteredLocations.length === 0">
+                <i class="fas fa-search"></i>
+                <p>No hay emprendimientos en este rango</p>
+                <small>Prueba aumentando el radio de búsqueda</small>
               </div>
             </div>
 
-            <!-- Mensaje si no hay resultados -->
-            <div class="no-results" *ngIf="filteredLocations.length === 0">
-              <p>No hay emprendimientos que coincidan con tu búsqueda</p>
-            </div>
           </div>
 
         </div>
@@ -84,40 +99,64 @@
     </div>
   </div>
 
-  <!-- MODAL DE DETALLES -->
+  <!-- MODAL DE DETALLES DEL PRODUCTO -->
   <div class="modal-overlay" *ngIf="showModal" (click)="closeLocationModal()">
-    <div class="modal-content" *ngIf="selectedLocation" (click)="$event.stopPropagation()">
+    <div class="modal-content product-modal" *ngIf="selectedLocation" (click)="$event.stopPropagation()">
       <div class="modal-header">
-        <h3>{{ selectedLocation.title }}</h3>
+        <div class="modal-header-info">
+          <h3>{{ selectedLocation.title }}</h3>
+          <span class="modal-category-badge">{{ selectedLocation.category_name }}</span>
+        </div>
         <button class="btn-close" (click)="closeLocationModal()">✕</button>
       </div>
       
       <div class="modal-body">
-        <div class="modal-section">
-          <label>Categoría:</label>
-          <p>{{ selectedLocation.category_name }}</p>
+        <!-- Información del vendedor -->
+        <div class="seller-info-card">
+          <div class="seller-avatar">
+            <i class="fas fa-user-circle"></i>
+          </div>
+          <div class="seller-details">
+            <p class="seller-name">{{ selectedLocation.seller_name || 'Emprendedor' }}</p>
+            <p class="seller-location"><i class="fas fa-map-marker-alt"></i> {{ selectedLocation.seller_province || 'Ecuador' }}</p>
+          </div>
+        </div>
+
+        <!-- Descripción del producto -->
+        <div class="modal-section description-section">
+          <label><i class="fas fa-align-left"></i> Descripción</label>
+          <p class="description-text">{{ selectedLocation.description || 'Sin descripción disponible' }}</p>
         </div>
         
-        <div class="modal-section">
-          <label>Descripción:</label>
-          <p>{{ selectedLocation.description }}</p>
-        </div>
-        
-        <div class="modal-section">
-          <label>Precio:</label>
-          <p class="price-highlight">{{ formatPrice(selectedLocation.price) }}</p>
-        </div>
-        
-        <div class="modal-section">
-          <label>Distancia:</label>
-          <p>📍 {{ selectedLocation.distance }}</p>
+        <!-- Precio y distancia -->
+        <div class="modal-info-grid">
+          <div class="info-card price-card">
+            <i class="fas fa-tag"></i>
+            <div class="info-content">
+              <span class="info-label">Precio</span>
+              <span class="info-value price-value">{{ formatPrice(selectedLocation.price) }}</span>
+            </div>
+          </div>
+          <div class="info-card distance-card">
+            <i class="fas fa-route"></i>
+            <div class="info-content">
+              <span class="info-label">Distancia</span>
+              <span class="info-value">{{ selectedLocation.distance }}</span>
+            </div>
+          </div>
         </div>
       </div>
       
       <div class="modal-footer">
-        <button class="btn primary" (click)="viewProduct(selectedLocation.id_product)"><i class="fas fa-eye"></i> Ver Detalles</button>
-        <button class="btn secondary" (click)="viewLocationOnMap(selectedLocation)"><i class="fas fa-map"></i> Ver en Mapa</button>
-        <button class="btn secondary" (click)="closeLocationModal()"><i class="fas fa-times"></i> Cerrar</button>
+        <button class="btn primary" (click)="viewProduct(selectedLocation.id_product)">
+          <i class="fas fa-eye"></i> Ver Detalles
+        </button>
+        <button class="btn secondary" (click)="viewLocationOnMap(selectedLocation)">
+          <i class="fas fa-map-marked-alt"></i> Ver en Mapa
+        </button>
+        <button class="btn tertiary" (click)="closeLocationModal()">
+          <i class="fas fa-times"></i> Cerrar
+        </button>
       </div>
     </div>
   </div>

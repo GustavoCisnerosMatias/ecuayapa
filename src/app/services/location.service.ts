@@ -10,6 +10,18 @@ export interface Province {
   region: string;
 }
 
+export interface Canton {
+  id: number;
+  name: string;
+  provinceId: number;
+}
+
+export interface Parish {
+  id: number;
+  name: string;
+  cantonId: number;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -244,6 +256,10 @@ export class LocationService {
     this.closeLocationModal();
   }
 
+  getProvinces(): Province[] {
+    return this.provinces;
+  }
+
   getCurrentLocation(): Promise<{ latitude: number; longitude: number }> {
     return new Promise((resolve, reject) => {
       if (navigator.geolocation) {
@@ -320,6 +336,80 @@ clearProvinceFromStorage() {
 getProvinceFromStorage(): Province | null {
   const stored = localStorage.getItem(this.STORAGE_KEY);
   return stored ? JSON.parse(stored) : null;
+}
+
+// ========== CANTONES Y PARROQUIAS (Datos de ejemplo) ==========
+private cantons: Canton[] = [
+  // Pichincha
+  { id: 1, name: 'Quito', provinceId: 17 },
+  { id: 2, name: 'Cayambe', provinceId: 17 },
+  { id: 3, name: 'Mejía', provinceId: 17 },
+  { id: 4, name: 'Pedro Moncayo', provinceId: 17 },
+  { id: 5, name: 'Rumiñahui', provinceId: 17 },
+  { id: 6, name: 'San Miguel de los Bancos', provinceId: 17 },
+  { id: 7, name: 'Pedro Vicente Maldonado', provinceId: 17 },
+  { id: 8, name: 'Puerto Quito', provinceId: 17 },
+  // Guayas
+  { id: 9, name: 'Guayaquil', provinceId: 9 },
+  { id: 10, name: 'Daule', provinceId: 9 },
+  { id: 11, name: 'Durán', provinceId: 9 },
+  { id: 12, name: 'Samborondón', provinceId: 9 },
+  { id: 13, name: 'Milagro', provinceId: 9 },
+  // Azuay
+  { id: 14, name: 'Cuenca', provinceId: 1 },
+  { id: 15, name: 'Gualaceo', provinceId: 1 },
+  { id: 16, name: 'Paute', provinceId: 1 },
+  // Tungurahua
+  { id: 17, name: 'Ambato', provinceId: 20 },
+  { id: 18, name: 'Baños de Agua Santa', provinceId: 20 },
+  { id: 19, name: 'Pelileo', provinceId: 20 },
+  // Manabí
+  { id: 20, name: 'Portoviejo', provinceId: 13 },
+  { id: 21, name: 'Manta', provinceId: 13 },
+  { id: 22, name: 'Chone', provinceId: 13 },
+  // Santa Elena
+  { id: 30, name: 'Salinas', provinceId: 24 },
+];
+
+private parishes: Parish[] = [
+  // Quito
+  { id: 1, name: 'Centro Histórico', cantonId: 1 },
+  { id: 2, name: 'La Mariscal', cantonId: 1 },
+  { id: 3, name: 'Cumbayá', cantonId: 1 },
+  { id: 4, name: 'Tumbaco', cantonId: 1 },
+  { id: 5, name: 'Conocoto', cantonId: 1 },
+  { id: 6, name: 'Calderón', cantonId: 1 },
+  // Mejía
+  { id: 7, name: 'Machachi', cantonId: 3 },
+  { id: 8, name: 'Aloag', cantonId: 3 },
+  { id: 9, name: 'Aloasí', cantonId: 3 },
+  // Salinas
+  { id: 100, name: 'Salinas', cantonId: 30 },
+  // Rumiñahui
+  { id: 10, name: 'Sangolquí', cantonId: 5 },
+  { id: 11, name: 'San Rafael', cantonId: 5 },
+  // Guayaquil
+  { id: 12, name: 'Tarqui', cantonId: 9 },
+  { id: 13, name: 'Ximena', cantonId: 9 },
+  { id: 14, name: 'Pascuales', cantonId: 9 },
+  // Cuenca
+  { id: 15, name: 'El Sagrario', cantonId: 14 },
+  { id: 16, name: 'San Sebastián', cantonId: 14 },
+  { id: 17, name: 'Yanuncay', cantonId: 14 },
+];
+
+/** Obtiene cantones por nombre de provincia */
+getCantonsByProvince(provinceName: string): Canton[] {
+  const province = this.provinces.find(p => p.name === provinceName);
+  if (!province) return [];
+  return this.cantons.filter(c => c.provinceId === province.id);
+}
+
+/** Obtiene parroquias por nombre de cantón */
+getParishesByCanton(cantonName: string): Parish[] {
+  const canton = this.cantons.find(c => c.name === cantonName);
+  if (!canton) return [];
+  return this.parishes.filter(p => p.cantonId === canton.id);
 }
 
 }
