@@ -194,33 +194,28 @@
         <h3 class="subsection-title"><i class="fas fa-clock"></i> Horarios de Atención</h3>
         
         <div class="schedule-grid">
-          <div class="schedule-item">
-            <label>Lunes</label>
-            <input type="text" [(ngModel)]="seller.schedule.monday" name="monday" placeholder="Ej: 8am - 7pm" />
-          </div>
-          <div class="schedule-item">
-            <label>Martes</label>
-            <input type="text" [(ngModel)]="seller.schedule.tuesday" name="tuesday" placeholder="Ej: 8am - 7pm" />
-          </div>
-          <div class="schedule-item">
-            <label>Miércoles</label>
-            <input type="text" [(ngModel)]="seller.schedule.wednesday" name="wednesday" placeholder="Ej: 8am - 7pm" />
-          </div>
-          <div class="schedule-item">
-            <label>Jueves</label>
-            <input type="text" [(ngModel)]="seller.schedule.thursday" name="thursday" placeholder="Ej: 8am - 7pm" />
-          </div>
-          <div class="schedule-item">
-            <label>Viernes</label>
-            <input type="text" [(ngModel)]="seller.schedule.friday" name="friday" placeholder="Ej: 8am - 7pm" />
-          </div>
-          <div class="schedule-item">
-            <label>Sábado</label>
-            <input type="text" [(ngModel)]="seller.schedule.saturday" name="saturday" placeholder="Ej: 9am - 5pm" />
-          </div>
-          <div class="schedule-item">
-            <label>Domingo</label>
-            <input type="text" [(ngModel)]="seller.schedule.sunday" name="sunday" placeholder="Ej: Cerrado" />
+          <div class="schedule-item" *ngFor="let day of ['monday','tuesday','wednesday','thursday','friday','saturday','sunday']">
+            <label>{{ {
+              monday: 'Lunes',
+              tuesday: 'Martes',
+              wednesday: 'Miércoles',
+              thursday: 'Jueves',
+              friday: 'Viernes',
+              saturday: 'Sábado',
+              sunday: 'Domingo',
+            }[day] }}</label>
+            <div class="schedule-row">
+              <label class="switch">
+                <input type="checkbox" [(ngModel)]="getDaySchedule(day).open" [name]="day + '_open'">
+                <span class="slider round"></span>
+              </label>
+              <span class="open-label">{{ getDaySchedule(day).open ? 'Abierto' : 'Cerrado' }}</span>
+              <ng-container *ngIf="getDaySchedule(day).open">
+                <input type="time" [(ngModel)]="getDaySchedule(day).from" [name]="day + '_from'" class="time-input" required>
+                <span>-</span>
+                <input type="time" [(ngModel)]="getDaySchedule(day).to" [name]="day + '_to'" class="time-input" required>
+              </ng-container>
+            </div>
           </div>
         </div>
 

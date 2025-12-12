@@ -1,7 +1,14 @@
+
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LocationService, Province, Canton, Parish } from '../../services/location.service';
+
+interface DaySchedule {
+  open: boolean;
+  from: string; // formato 'HH:mm'
+  to: string;   // formato 'HH:mm'
+}
 
 interface SellerInfo {
   cedula: string;
@@ -16,13 +23,13 @@ interface SellerInfo {
   email: string;
   history: string;
   schedule: {
-    monday: string;
-    tuesday: string;
-    wednesday: string;
-    thursday: string;
-    friday: string;
-    saturday: string;
-    sunday: string;
+    monday: DaySchedule;
+    tuesday: DaySchedule;
+    wednesday: DaySchedule;
+    thursday: DaySchedule;
+    friday: DaySchedule;
+    saturday: DaySchedule;
+    sunday: DaySchedule;
   };
   storeImage: File | null;
   storeImagePreview: string;
@@ -79,13 +86,13 @@ export class VenderComponent {
     email: '',
     history: '',
     schedule: {
-      monday: '',
-      tuesday: '',
-      wednesday: '',
-      thursday: '',
-      friday: '',
-      saturday: '',
-      sunday: '',
+      monday: { open: true, from: '08:00', to: '19:00' },
+      tuesday: { open: true, from: '08:00', to: '19:00' },
+      wednesday: { open: true, from: '08:00', to: '19:00' },
+      thursday: { open: true, from: '08:00', to: '19:00' },
+      friday: { open: true, from: '08:00', to: '19:00' },
+      saturday: { open: true, from: '09:00', to: '17:00' },
+      sunday: { open: false, from: '', to: '' },
     },
     storeImage: null,
     storeImagePreview: '',
@@ -258,5 +265,10 @@ export class VenderComponent {
   // Track by para ngFor
   trackByProductId(index: number, product: Product): number {
     return product.id;
+  }
+
+  // Acceso seguro a los días para el template
+  getDaySchedule(day: string): DaySchedule {
+    return (this.seller.schedule as any)[day];
   }
 }
