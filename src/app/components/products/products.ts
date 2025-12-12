@@ -85,8 +85,30 @@ export class ProductsComponent implements OnInit, AfterViewInit, OnDestroy {
   ) {}
 
 ngOnInit(): void {
-  // Cargar provincias del servicio
-  this.provinces = this.locationService.provinces;
+  // Cargar provincias dinámicamente desde SOAP
+  console.log('📍 Products ngOnInit - Iniciando carga de provincias...');
+  
+  this.locationService.loadProvincesFromSOAP().subscribe({
+    next: (provinces) => {
+      console.log('✅ Provincias cargadas en products component:', provinces);
+      this.provinces = provinces;
+      this.cdr.detectChanges();
+    },
+    error: (err) => {
+      console.error('❌ Error en products cargando provincias:', err);
+      console.error('Error details:', {
+        message: err.message,
+        status: err.status,
+        statusText: err.statusText,
+        url: err.url
+      });
+      this.provinces = [];
+    },
+    complete: () => {
+      console.log('✓ Petición de provincias completada');
+    }
+  });
+  
   this.showSpinnerMin3s(() => this.loadProductsFromSOAP());
 }
 
@@ -94,13 +116,11 @@ ngOnInit(): void {
 loadProductsFromSOAP() {
   this.productService.getProductByIdSOAP().subscribe({
     next: (soapResponse: string) => {
-      console.log('Respuesta SOAP recibida');
       this.parseAndLoadProducts(soapResponse);
       this.hideSpinnerMin3s();
       this.cdr.detectChanges();
     },
     error: (err) => {
-      console.error('Error en SOAP:', err);
       this.hideSpinnerMin3s();
       this.cdr.detectChanges();
     }
@@ -279,12 +299,7 @@ buildImageUrl(fileName: string): string {
   }
   // Usar proxy para evitar CORS
   const imageUrl = `/images/${fileName}`;
-  console.log('URL de imagen a través de proxy:', imageUrl);
   return imageUrl;
-}
-
-openLocationModal() {
-  this.locationService.openLocationModal();
 }
 
 getLocation(){
@@ -302,8 +317,8 @@ getLocation(){
     }
   }
 
-  // Si no hay provincia guardada, abrir modal
-  this.openLocationModal();
+  // Si no hay provincia guardada, simplemente cargar todos los productos
+  // El usuario puede filtrar por provincia usando los filtros
   this.loadProducts();
 }
 
@@ -358,7 +373,6 @@ loadProducts(){
 
   onImageLoad(event: Event): void {
     const img = event.target as HTMLImageElement;
-    console.log('Imagen cargada:', img.src);
     // Ocultar el fallback cuando la imagen carga
     const fallback = img.parentElement?.querySelector('.image-fallback') as HTMLElement;
     if (fallback) {

@@ -55,7 +55,7 @@ protected readonly title = 'ecuayapa';
     );
 
     // Verificar si hay ubicación guardada, si no, abrir modal
-    this.checkAndOpenLocationModal();
+    //this.checkAndOpenLocationModal();
   }
 
   checkAndOpenLocationModal() {

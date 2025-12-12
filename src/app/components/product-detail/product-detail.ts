@@ -23,7 +23,7 @@ export class ProductDetailComponent implements OnInit {
   shareLink = '';
   showShareModal = false;
   showFullStory = false;
-  loadedImages: { [key: string]: boolean } = {};
+  loadedImages: { [key: string]: boolean | null } = {};
 
   constructor(
     private route: ActivatedRoute,
@@ -47,7 +47,7 @@ export class ProductDetailComponent implements OnInit {
 
     this.productService.getProductDetail(productId).subscribe({
       next: (soapResponse: string) => {
-        console.log('📦 SOAP Response recibida, longitud:', soapResponse.length);
+        //console.log('📦 SOAP Response recibida, longitud:', soapResponse.length);
         const product = this.parseProductDetail(soapResponse, String(productId));
         
         if (product) {
@@ -229,10 +229,12 @@ export class ProductDetailComponent implements OnInit {
 
   onImageLoad(imageUrl: string) {
     this.loadedImages[imageUrl] = true;
+    this.cdr.detectChanges();
   }
 
   onImageError(imageUrl: string) {
     this.loadedImages[imageUrl] = false;
+    this.cdr.detectChanges();
     console.warn('⚠️ Error loading image:', imageUrl);
   }
 

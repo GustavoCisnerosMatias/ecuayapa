@@ -5,7 +5,14 @@
     "changeOrigin": true,
     "pathRewrite": {
       "^/api": ""
-    }
+    },
+    "logLevel": "debug"
+  },
+  "/ferias-ws": {
+    "target": "https://siimdhalpha.desarrollohumano.gob.ec",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug"
   },
   "/images": {
     "target": "https://ecuayapa.desarrollohumano.gob.ec/emprende/uploads",

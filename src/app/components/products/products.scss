@@ -627,8 +627,9 @@
 
 .filters-content {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
+  grid-template-columns: 0.7fr 0.3fr;
+  gap: 1.5rem;
+  align-items: start;
 }
 
 .filters-column {
@@ -755,6 +756,37 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 1.75rem;
+  overflow-x: auto;
+  overflow-y: visible;
+  scroll-behavior: smooth;
+  
+  // Solo mostrar scrollbar horizontal cuando sea necesario
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 #f1f5f9;
+  
+  &::-webkit-scrollbar {
+    height: 6px;
+    display: block;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 10px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+    
+    &:hover {
+      background: #94a3b8;
+    }
+  }
+  
+  // Ocultar scrollbar cuando no hay overflow
+  &:not(:hover)::-webkit-scrollbar {
+    height: 0;
+  }
 }
 
 // Filtro de subcategorías
@@ -962,7 +994,6 @@
   flex-direction: column;
   gap: 0.85rem;
   flex-grow: 1;
-  min-height: 220px;
 }
 
 .product-header {
@@ -970,7 +1001,7 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 0.75rem;
-  min-height: 60px;
+
 }
 
 .product-title {
@@ -1504,17 +1535,24 @@
   display: flex;
   gap: 1.5rem;
   overflow-x: auto;
-  scroll-behavior: auto;
-  padding: 1rem 0.5rem;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+  padding: 0.75rem 0.25rem;
+  margin: 0 auto;
   contain: layout;
   will-change: scroll-position;
   
+  // Solo mostrar scrollbar cuando sea necesario
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 #f1f5f9;
+  
   &::-webkit-scrollbar {
-    height: 8px;
+    height: 6px;
+    display: block;
   }
   
   &::-webkit-scrollbar-track {
-    background: #f1f5f9;
+    background: transparent;
     border-radius: 10px;
   }
   
@@ -1525,6 +1563,11 @@
     &:hover {
       background: #94a3b8;
     }
+  }
+  
+  // Ocultar scrollbar cuando no hay overflow
+  &:not(:hover)::-webkit-scrollbar {
+    height: 0;
   }
 }
 
@@ -1567,215 +1610,20 @@
   }
 }
 
+// Card horizontal - usa los mismos estilos que .product-card pero con ancho fijo para el scroll
 .product-card-horizontal {
   min-width: 280px;
   max-width: 280px;
-  background: rgba(255, 255, 255, 0.9);
-  border-radius: 1rem;
-  overflow: hidden;
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
-  border: 1px solid rgba(148, 163, 184, 0.15);
-  transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.15s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.15s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
-  position: relative;
-  backface-visibility: hidden;
-  will-change: transform, box-shadow;
-
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: auto;
+  
   &:hover {
     transform: translateY(-4px);
-    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.12);
-  }
-
-  &.featured {
-    border-color: #ffc003;
-  }
-}
-
-.product-badge-horizontal {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: #ffc003;
-  color: #1e293b;
-  padding: 0.3rem 0.7rem;
-  border-radius: 999px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  z-index: 10;
-  box-shadow: 0 8px 20px rgba(255, 192, 3, 0.4);
-
-  i {
-    font-size: 0.8rem;
-  }
-}
-
-.product-image-horizontal {
-  position: relative;
-  width: 100%;
-  height: 180px;
-  overflow: hidden;
-  background: #f0f0f0;
-
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.4s ease;
-  }
-
-  &:hover img {
-    transform: scale(1.1);
-  }
-
-  .image-fallback {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #f0f0f0;
-    color: #cbd5e1;
-    font-size: 2.5rem;
-    transition: opacity 0.3s ease;
-    pointer-events: none;
-  }
-}
-
-.product-info-horizontal {
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.product-title-horizontal {
-  font-size: 1rem;
-  font-weight: 700;
-  color: #111827;
-  margin: 0;
-  display: block;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  position: relative;
-}
-
-.product-location-horizontal {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-size: 0.8rem;
-  color: #6b7280;
-  overflow: hidden;
-  position: relative;
-
-  i {
-    color: #ffc003;
-    font-size: 0.85rem;
-    flex-shrink: 0;
-  }
-}
-
-// Contenedor de scroll para cards horizontales
-.text-scroll-container-h {
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-
-  .scroll-text-h {
-    display: block;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
-  }
-}
-
-// Activar scroll cuando hover en el CARD horizontal
-.product-card-horizontal:hover .text-scroll-container-h .scroll-text-h {
-  animation: scroll-text 8s linear infinite;
-  text-overflow: clip;
-  overflow: visible;
-}
-
-.product-card-horizontal:hover .text-scroll-container-h {
-  overflow: hidden;
-}
-
-.product-price-horizontal {
-  font-size: 1.3rem;
-  font-weight: 800;
-  color: #2d2d96;
-  margin: 0.25rem 0;
-}
-
-.product-vendor-horizontal {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-size: 0.8rem;
-  color: #6b7280;
-  padding-top: 0.5rem;
-  border-top: 1px solid #e5e7eb;
-  margin-bottom: 0.75rem;
-
-  i {
-    color: #2d2d96;
-    font-size: 0.85rem;
-  }
-
-  span {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-}
-
-// Botón ver detalles en cards horizontales
-.product-actions-horizontal {
-  display: flex;
-  gap: 0.5rem;
-  margin-top: auto;
-  padding-top: 0.75rem;
-  border-top: 1px solid #e5e7eb;
-
-  .btn-action {
-    flex: 1;
-    padding: 0.5rem 0.75rem;
-    background: linear-gradient(135deg, #2d2d96, #1f1f6b);
-    color: #fff;
-    border: none;
-    border-radius: 0.6rem;
-    font-size: 0.8rem;
-    font-weight: 600;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.4rem;
-    transition: all 0.2s ease;
-    white-space: nowrap;
-
-    i {
-      font-size: 0.9rem;
-    }
-
-    .btn-text {
-      display: none;
-      
-      @media (min-width: 768px) {
-        display: inline;
-      }
-    }
-
-    &:hover {
-      background: linear-gradient(135deg, #1f1f6b, #0d0d3d);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(45, 45, 150, 0.25);
-    }
-
-    &:active {
-      transform: translateY(0);
-    }
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
   }
 }
 

@@ -46,9 +46,7 @@
 
 /* ================================ CONTAINER LAYOUT ================================ */
 .detail-container {
-  min-height: 100vh;
   background: #f8f9fa;
-  padding: 24px 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -157,6 +155,43 @@
     margin: 0;
     color: #9ca3af;
     font-size: 14px;
+  }
+  
+  // Estado cargando
+  &.loading {
+    background: linear-gradient(135deg, #f8f9fa 0%, #f0f1f3 100%);
+    
+    i {
+      color: #2d2d96;
+      animation: spin 1s linear infinite;
+    }
+    
+    p {
+      color: #374151;
+      font-weight: 500;
+    }
+  }
+  
+  // Estado error
+  &.error {
+    background: #fef2f2;
+    
+    i {
+      color: #ef4444;
+    }
+    
+    p {
+      color: #dc2626;
+    }
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }
 
@@ -296,7 +331,7 @@
   gap: 16px;
   position: sticky;
   top: 20px; // Se mantiene visible al hacer scroll
-  max-height: calc(100vh - 40px); // No exceder altura de viewport
+    overflow-y: visible;
   
   @media (max-width: 1024px) {
     position: static;
@@ -319,7 +354,6 @@
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   padding: 20px;
-  border-left: 4px solid #2d2d96;
   
   &.desktop-only {
     @media (max-width: 1024px) {
@@ -367,8 +401,8 @@
   background: rgba(45, 45, 150, 0.1);
   color: #2d2d96;
   font-size: 12px;
-  font-weight: 600;
-  border-radius: 16px;
+    overflow-y: visible;
+    overflow-x: visible;
   
   i {
     font-size: 12px;
@@ -380,13 +414,12 @@
   background: white;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  overflow: hidden;
+  overflow: visible;
   display: flex;
   flex-direction: column;
-  max-height: 380px; // Altura máxima fija
   
   @media (max-width: 1024px) {
-    max-height: none;
+    overflow: visible;
   }
 }
 
@@ -483,24 +516,10 @@
   opacity: 0;
   
   &.show {
-    max-height: 300px;
+    max-height: none;
     opacity: 1;
-    overflow-y: auto;
+    overflow-y: visible;
     padding-top: 12px;
-    
-    // Scrollbar para historia expandida
-    &::-webkit-scrollbar {
-      width: 4px;
-    }
-    
-    &::-webkit-scrollbar-track {
-      background: #f1f1f1;
-    }
-    
-    &::-webkit-scrollbar-thumb {
-      background: #2d2d96;
-      border-radius: 2px;
-    }
   }
 }
 

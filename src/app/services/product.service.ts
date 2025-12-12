@@ -19,6 +19,16 @@ export interface Product {
   providedIn: 'root',
 })
 export class ProductService {
+    private readonly API_URL = '/api/ecuayapa-ws/ecuayapa-service';
+  private readonly NAMESPACE = 'http://impl.service.siimies.web.ecuayapa/';
+
+  private readonly SOAP_USER = 'ws.mdh.ecuayapa';
+  private readonly SOAP_PASS = 'Ecu4Y@paSii';
+  private readonly defaultHeaders = new HttpHeaders({
+    'Content-Type': 'text/xml;charset=UTF-8',
+    'SOAPAction': '',
+    'Authorization': 'Basic ' + btoa(this.SOAP_USER + ':' + this.SOAP_PASS)
+  });
   private provinceLocationMap: { [key: string]: string[] } = {
     pichincha: ['Quito', 'Centro-Norte'],
     guayas: ['Guayaquil', 'Costa'],
@@ -142,36 +152,7 @@ getEmprendedoresConProductosPaginado(): Observable<string> {
     return this.http.get<{ data: Product }>(`${this.baseUrl}?id_product=${id_product}`);
   }
 
-  // getProductByIdSOAP(id_product: string): Observable<string> {
-  //   console.log("Llamando a getProductByIdSOAP con id_product:", id_product);
-  //   const url = 'https://siimdhalpha.desarrollohumano.gob.ec/ecuayapa-ws/ecuayapa-service';
 
-  //   const soapEnvelope = `
-  //     <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
-  //                       xmlns:ecu="http://ecuayapa.mdh.gob.ec/">
-  //       <soapenv:Header/>
-  //       <soapenv:Body>
-  //         <ecu:tuMetodo>
-  //           <username>ws.mdh.ecuayapa</username>
-  //           <password>Ecu4Y@paSii</password>
-  //           <idProducto>${id_product}</idProducto>
-  //         </ecu:tuMetodo>
-  //       </soapenv:Body>
-  //     </soapenv:Envelope>
-  //   `;
-
-  //   const headers = new HttpHeaders({
-  //     'Content-Type': 'text/xml;charset=UTF-8',
-  //     'SOAPAction': ''
-  //   });
-
-  //   return this.http.post(url, soapEnvelope, {
-  //     headers,
-  //     responseType: 'text'
-  //   }).pipe(
-  //     tap(resp => console.log('Respuesta SOAP:', resp))
-  //   );
-  // }
 getProductByIdSOAP(): Observable<string> {
   // Usa /api en desarrollo (proxy redirige a prod)
   const url = '/api/ecuayapa-ws/ecuayapa-service';
@@ -196,7 +177,7 @@ getProductByIdSOAP(): Observable<string> {
     headers,
     responseType: 'text'
   }).pipe(
-    tap(resp => console.log("✅ SOAP RESPONSE:", resp)),
+    tap(resp => console.log("✅ SOAP RESPONSE:")),
     catchError(error => {
       console.error("❌ Error en SOAP:", error);
       return throwError(() => ({
@@ -241,5 +222,170 @@ getProductDetail(productId: string | number): Observable<any> {
     })
   );
 }
+/**
+   * 1. CONSULTAR EMPRENDEDORES CON PRODUCTOS PAGINADO
+   * Sin parámetros
+   * Retorna: lista de emprendedores con sus productos
+   */
+  consultarEmprendedoresConProductosPaginado(): Observable<string> {
+    const soapBody = `
+      <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ecu="${this.NAMESPACE}">
+        <soapenv:Header/>
+        <soapenv:Body>
+          <ecu:consultarEmprendedoresConProductosPaginado/>
+        </soapenv:Body>
+      </soapenv:Envelope>
+    `;
 
+    return this.http.post(this.API_URL, soapBody, { headers: this.defaultHeaders, responseType: 'text' }).pipe(
+      tap(resp => console.log('✅ consultarEmprendedoresConProductosPaginado:', resp)),
+      catchError(error => this.handleError('consultarEmprendedoresConProductosPaginado', error))
+    );
+  }
+
+  /**
+   * 2. CONSULTAR REGISTROS ECUAYAPA
+   * Parámetro: ci (String) - cédula del usuario
+   * Retorna: datos del registro asociado a la cédula
+   */
+  consultarRegistrosEcuayapa(ci: string): Observable<string> {
+    const soapBody = `
+      <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ecu="${this.NAMESPACE}">
+        <soapenv:Header/>
+        <soapenv:Body>
+          <ecu:consultarRegistrosEcuayapa>
+            <ci>${this.escapeXml(ci)}</ci>
+          </ecu:consultarRegistrosEcuayapa>
+        </soapenv:Body>
+      </soapenv:Envelope>
+    `;
+
+    return this.http.post(this.API_URL, soapBody, { headers: this.defaultHeaders, responseType: 'text' }).pipe(
+      tap(resp => console.log('✅ consultarRegistrosEcuayapa:', resp)),
+      catchError(error => this.handleError('consultarRegistrosEcuayapa', error))
+    );
+  }
+
+  /**
+   * 3. CONSULTAR CATEGORÍAS POR ID PARENT
+   * Parámetro: idParent (Integer) - ID de la categoría padre
+   * Retorna: lista de subcategorías
+   */
+  consultarCategoriasPorIdParent(idParent: number): Observable<string> {
+    const soapBody = `
+      <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ecu="${this.NAMESPACE}">
+        <soapenv:Header/>
+        <soapenv:Body>
+          <ecu:consultarCategoriasPorIdParent>
+            <idParent>${idParent}</idParent>
+          </ecu:consultarCategoriasPorIdParent>
+        </soapenv:Body>
+      </soapenv:Envelope>
+    `;
+
+    return this.http.post(this.API_URL, soapBody, { headers: this.defaultHeaders, responseType: 'text' }).pipe(
+      tap(resp => console.log('✅ consultarCategoriasPorIdParent:', resp)),
+      catchError(error => this.handleError('consultarCategoriasPorIdParent', error))
+    );
+  }
+
+  /**
+   * 4. REGISTRAR CLICK PRODUCTO
+   * Parámetro: productId (Integer) - ID del producto
+   * Retorna: confirmación del registro del click
+   */
+  registrarClickProducto(productId: number): Observable<string> {
+    const soapBody = `
+      <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ecu="${this.NAMESPACE}">
+        <soapenv:Header/>
+        <soapenv:Body>
+          <ecu:registrarClickProducto>
+            <productId>${productId}</productId>
+          </ecu:registrarClickProducto>
+        </soapenv:Body>
+      </soapenv:Envelope>
+    `;
+
+    return this.http.post(this.API_URL, soapBody, { headers: this.defaultHeaders, responseType: 'text' }).pipe(
+      tap(resp => console.log('✅ registrarClickProducto:', resp)),
+      catchError(error => this.handleError('registrarClickProducto', error))
+    );
+  }
+
+  /**
+   * 5. REGISTRAR CLICK SELL PRODUCTO
+   * Parámetro: productId (Integer) - ID del producto
+   * Retorna: confirmación del registro del click de venta
+   */
+  registrarClickSellProducto(productId: number): Observable<string> {
+    const soapBody = `
+      <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ecu="${this.NAMESPACE}">
+        <soapenv:Header/>
+        <soapenv:Body>
+          <ecu:registrarClickSellProducto>
+            <productId>${productId}</productId>
+          </ecu:registrarClickSellProducto>
+        </soapenv:Body>
+      </soapenv:Envelope>
+    `;
+
+    return this.http.post(this.API_URL, soapBody, { headers: this.defaultHeaders, responseType: 'text' }).pipe(
+      tap(resp => console.log('✅ registrarClickSellProducto:', resp)),
+      catchError(error => this.handleError('registrarClickSellProducto', error))
+    );
+  }
+
+  /**
+   * 6. GUARDAR REGISTRO COMPLETO
+   * Parámetro: registroXml (String) - XML con los datos del registro completo (RegistroCompletoRequest)
+   * Estructura esperada del objeto (aproximada, basada en WSDL):
+   * {
+   *   campo1: valor1,
+   *   campo2: valor2,
+   *   ...
+   * }
+   * 
+   * NOTA: Revisa el WSDL importado (EcuayapaAction.wsdl) para conocer la estructura exacta de RegistroCompletoRequest
+   * Retorna: confirmación de guardado
+   */
+  guardarRegistroCompleto(registroXml: string): Observable<string> {
+    const soapBody = `
+      <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ecu="${this.NAMESPACE}">
+        <soapenv:Header/>
+        <soapenv:Body>
+          <ecu:guardarRegistroCompleto>
+            ${registroXml}
+          </ecu:guardarRegistroCompleto>
+        </soapenv:Body>
+      </soapenv:Envelope>
+    `;
+
+    return this.http.post(this.API_URL, soapBody, { headers: this.defaultHeaders, responseType: 'text' }).pipe(
+      tap(resp => console.log('✅ guardarRegistroCompleto:', resp)),
+      catchError(error => this.handleError('guardarRegistroCompleto', error))
+    );
+  }
+
+   private escapeXml(str: string): string {
+    if (!str) return '';
+    return str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&apos;');
+  }
+
+  /**
+   * Manejo de errores centralizado
+   */
+  private handleError(operation: string, error: any) {
+    console.error(`❌ Error en ${operation}:`, error);
+    return throwError(() => ({
+      operation,
+      message: error.message || 'Error desconocido',
+      status: error.status,
+      error
+    }));
+  }
   }

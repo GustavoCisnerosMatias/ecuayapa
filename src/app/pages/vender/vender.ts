@@ -106,22 +106,85 @@ export class VenderComponent {
   errors: { [key: string]: string } = {};
 
   constructor(private locationService: LocationService) {
-    this.provinces = this.locationService.getProvinces();
+    console.log('🏢 Vender constructor - Cargando provincias...');
+    
+    // Cargar provincias dinámicamente desde SOAP
+    this.locationService.loadProvincesFromSOAP().subscribe({
+      next: (provinces) => {
+        this.provinces = provinces;
+      },
+      error: (err) => {
+        console.error('❌ Error en vender cargando provincias:', err);
+        console.error('Error details:', {
+          message: err.message,
+          status: err.status,
+          statusText: err.statusText,
+          url: err.url
+        });
+        this.provinces = [];
+      },
+      complete: () => {
+        console.log('✓ Carga de provincias completada en vender');
+      }
+    });
+    
     this.addProduct(); // Iniciar con un producto vacío
   }
 
-  // Cambio de provincia
+  // Cambio de provincia - cargar cantones dinámicamente
   onProvinceChange(): void {
-    this.cantons = this.locationService.getCantonsByProvince(this.seller.province);
+    console.log('🔄 Provincia seleccionada:', this.seller.province);
     this.seller.canton = '';
     this.seller.parish = '';
+    this.cantons = [];
     this.parishes = [];
+    
+    const selectedProvince = this.provinces.find(p => p.name === this.seller.province);
+    if (selectedProvince) {
+      console.log(`📍 Cargando cantones para provincia: ${selectedProvince.name} (ID: ${selectedProvince.id})`);
+      this.locationService.loadCantonsByProvince(selectedProvince.id).subscribe({
+        next: (cantones) => {
+          console.log('✅ Cantones cargados:', cantones);
+          this.cantons = cantones;
+        },
+        error: (err) => {
+          console.error('❌ Error cargando cantones:', err);
+          this.cantons = [];
+        },
+        complete: () => {
+          console.log('✓ Carga de cantones completada');
+        }
+      });
+    } else {
+      console.warn('⚠️ Provincia no encontrada:', this.seller.province);
+    }
   }
 
-  // Cambio de cantón
+  // Cambio de cantón - cargar parroquias dinámicamente
   onCantonChange(): void {
-    this.parishes = this.locationService.getParishesByCanton(this.seller.canton);
+    console.log('🔄 Cantón seleccionado:', this.seller.canton);
     this.seller.parish = '';
+    this.parishes = [];
+    
+    const selectedCanton = this.cantons.find(c => c.name === this.seller.canton);
+    if (selectedCanton) {
+      console.log(`📍 Cargando parroquias para cantón: ${selectedCanton.name} (ID: ${selectedCanton.id})`);
+      this.locationService.loadParishesByCanton(selectedCanton.id).subscribe({
+        next: (parroquias) => {
+          console.log('✅ Parroquias cargadas:', parroquias);
+          this.parishes = parroquias;
+        },
+        error: (err) => {
+          console.error('❌ Error cargando parroquias:', err);
+          this.parishes = [];
+        },
+        complete: () => {
+          console.log('✓ Carga de parroquias completada');
+        }
+      });
+    } else {
+      console.warn('⚠️ Cantón no encontrado:', this.seller.canton);
+    }
   }
 
   // Obtener subcategorías para una categoría

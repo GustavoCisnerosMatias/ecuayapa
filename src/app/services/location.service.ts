@@ -1,13 +1,15 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, throwError } from 'rxjs';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { map, catchError } from 'rxjs/operators';
 
 export interface Province {
   id: number;
   name: string;
-  lat: number;
-  lng: number;
-  icon: string;
-  region: string;
+  lat?: number;
+  lng?: number;
+  icon?: string;
+  region?: string;
 }
 
 export interface Canton {
@@ -32,7 +34,290 @@ export class LocationService {
   private showLocationModalSubject = new BehaviorSubject<boolean>(false);
   public showLocationModal$ = this.showLocationModalSubject.asObservable();
 
-  provinces: Province[] = 
+  private readonly SOAP_URL = '/ferias-ws/ferias-service';
+  private readonly SOAP_USER = 'ws.mdh.ecuayapa';
+  private readonly SOAP_PASS = 'Ecu4Y@paSii';
+
+  provinces: Province[] = [];
+  private cantons: Canton[] = [];
+  private parishes: Parish[] = [];
+
+  constructor(private http: HttpClient) {
+    this.loadProvincesFromSOAP();
+  }
+
+  /** Carga provincias dinámicamente desde SOAP */
+  loadProvincesFromSOAP(): Observable<Province[]> {
+
+    
+    const soapRequest = `<?xml version="1.0" encoding="UTF-8"?>
+      <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tns="http://impl.service.siimies.web.ferias/">
+        <soap:Body>
+          <tns:cargarProvincias/>
+        </soap:Body>
+      </soap:Envelope>`;
+
+    console.log('📤 Enviando request SOAP...');
+    
+    return this.http.post(this.SOAP_URL, soapRequest, {
+      headers: { 
+        'Content-Type': 'text/xml',
+        'Authorization': 'Basic ' + btoa(this.SOAP_USER + ':' + this.SOAP_PASS)
+      },
+      responseType: 'text'
+    }).pipe(
+      map((response: string) => {
+        console.log('📦 Contenido SOAP (primeros 500 caracteres):', response.substring(0, 500));
+        const provincias = this.parseProvincias(response);
+        this.provinces = provincias.sort((a, b) => a.name.localeCompare(b.name, 'es-EC'));
+        console.log('✅ Provincias cargadas y ordenadas:', this.provinces);
+        return this.provinces;
+      }),
+      catchError((error: HttpErrorResponse) => {
+        console.error('❌ ERROR SOAP en cargarProvincias:', error);
+        console.error('Status:', error.status);
+        console.error('StatusText:', error.statusText);
+        console.error('Message:', error.message);
+        console.error('Error:', error.error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /** Parsea la respuesta SOAP de provincias */
+  private parseProvincias(soapResponse: string): Province[] {
+    console.log('🔍 Iniciando parsing de provincias...');
+    console.log('📋 Respuesta completa:', soapResponse);
+    
+    try {
+      // Verificar si hay errores de parseo XML
+      const parser = new DOMParser();
+      const xmlDoc = parser.parseFromString(soapResponse, 'text/xml');
+      
+      // Detectar errores de parsing
+      if (xmlDoc.getElementsByTagName('parsererror').length > 0) {
+        console.error('❌ Error de parseo XML detectado');
+        console.error('Contenido error:', xmlDoc.documentElement);
+        return [];
+      }
+
+      // Intentar con diferentes etiquetas
+      let provinceElements = xmlDoc.getElementsByTagName('return');
+      console.log(`📊 Intentando tag 'return': encontrados ${provinceElements.length}`);
+      
+      if (provinceElements.length === 0) {
+        provinceElements = xmlDoc.getElementsByTagName('provincia');
+        console.log(`📊 Intentando tag 'provincia': encontrados ${provinceElements.length}`);
+      }
+      
+      if (provinceElements.length === 0) {
+        provinceElements = xmlDoc.getElementsByTagName('ns2:return');
+        console.log(`📊 Intentando tag 'ns2:return': encontrados ${provinceElements.length}`);
+      }
+      
+      if (provinceElements.length === 0) {
+        // Log de todos los elementos
+        const allElements = xmlDoc.getElementsByTagName('*');
+        console.log(`📊 Total de elementos en XML: ${allElements.length}`);
+        console.log('🔍 Tipos de elementos encontrados:');
+        const tagNames = new Set<string>();
+        for (let i = 0; i < Math.min(allElements.length, 100); i++) {
+          tagNames.add(allElements[i].tagName);
+          if (i < 20) {
+            console.log(`  [${i}] ${allElements[i].tagName}`);
+          }
+        }
+        console.log('Todas las etiquetas únicas:', Array.from(tagNames).join(', '));
+      }
+      
+      const provincias: Province[] = [];
+      
+      console.log(`🔄 Procesando ${provinceElements.length} elementos...`);
+      
+      // El XML usa geografiaCdhActualEntityList con codigoProvincia y provincia
+      const geoElements = xmlDoc.getElementsByTagName('geografiaCdhActualEntityList');
+      console.log(`📍 Encontrados ${geoElements.length} elementos geografiaCdhActualEntityList`);
+      
+      for (let i = 0; i < geoElements.length; i++) {
+        const element = geoElements[i];
+        const codigoElem = element.getElementsByTagName('codigoProvincia')[0];
+        const provinciaElem = element.getElementsByTagName('provincia')[0];
+        
+        const codigo = codigoElem?.textContent?.trim() || '';
+        const nombre = provinciaElem?.textContent?.trim() || '';
+        
+        
+        if (codigo && nombre) {
+          const id = parseInt(codigo);
+          provincias.push({ id, name: nombre });
+        }
+      }
+      
+      console.log(`✓ Total de provincias parseadas: ${provincias.length}`);
+      return provincias;
+    } catch (error) {
+      console.error('❌ Error en parseProvincias:', error);
+      console.error('Stack:', (error as Error).stack);
+      return [];
+    }
+  }
+
+  /** Carga cantones por ID de provincia desde SOAP */
+  loadCantonsByProvince(provinceId: number): Observable<Canton[]> {
+    console.log(`🔄 Cargando cantones para provincia ID: ${provinceId}...`);
+    
+    const soapRequest = `<?xml version="1.0" encoding="UTF-8"?>
+      <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tns="http://impl.service.siimies.web.ferias/">
+        <soap:Body>
+          <tns:cargarCanton>
+            <arg0>${provinceId}</arg0>
+          </tns:cargarCanton>
+        </soap:Body>
+      </soap:Envelope>`;
+
+    return this.http.post(this.SOAP_URL, soapRequest, {
+      headers: { 
+        'Content-Type': 'text/xml',
+        'Authorization': 'Basic ' + btoa(this.SOAP_USER + ':' + this.SOAP_PASS)
+      },
+      responseType: 'text'
+    }).pipe(
+      map((response: string) => {
+        console.log(`✅ Respuesta SOAP para cantones recibida - Longitud: ${response.length}`);
+        const cantones = this.parseCantones(response, provinceId);
+        console.log(`✓ Cantones cargados para provincia ${provinceId}:`, cantones);
+        return cantones.sort((a, b) => a.name.localeCompare(b.name, 'es-EC'));
+      }),
+      catchError((error: HttpErrorResponse) => {
+        console.error(`❌ ERROR SOAP en cargarCanton (provincia ${provinceId}):`, error);
+        console.error('Status:', error.status);
+        console.error('StatusText:', error.statusText);
+        console.error('Message:', error.message);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /** Parsea la respuesta SOAP de cantones */
+  private parseCantones(soapResponse: string, provinceId: number): Canton[] {
+    console.log(`🔍 Parseando cantones para provincia ${provinceId}...`);
+    
+    try {
+      const parser = new DOMParser();
+      const xmlDoc = parser.parseFromString(soapResponse, 'text/xml');
+      
+      if (xmlDoc.getElementsByTagName('parsererror').length > 0) {
+        console.error('❌ Error de parseo XML en cantones');
+        return [];
+      }
+      
+      const geoElements = xmlDoc.getElementsByTagName('geografiaCdhActualEntityList');
+      console.log(`📊 Cantones encontrados: ${geoElements.length}`);
+      
+      const cantones: Canton[] = [];
+      
+      for (let i = 0; i < geoElements.length; i++) {
+        const element = geoElements[i];
+        const codigoElem = element.getElementsByTagName('codigoCanton')[0];
+        const cantonElem = element.getElementsByTagName('canton')[0];
+        
+        const codigo = codigoElem?.textContent?.trim() || '';
+        const nombre = cantonElem?.textContent?.trim() || '';
+        
+        if (codigo && nombre) {
+          const id = parseInt(codigo);
+          cantones.push({ id, name: nombre, provinceId });
+          console.log(`  ├─ Cantón ${id}: ${nombre}`);
+        }
+      }
+      
+      console.log(`✓ Total cantones parseados: ${cantones.length}`);
+      return cantones;
+    } catch (error) {
+      console.error('❌ Error parseando cantones:', error);
+      return [];
+    }
+  }
+
+  /** Carga parroquias por ID de cantón desde SOAP */
+  loadParishesByCanton(cantonId: number): Observable<Parish[]> {
+    console.log(`🔄 Cargando parroquias para cantón ID: ${cantonId}...`);
+    
+    const soapRequest = `<?xml version="1.0" encoding="UTF-8"?>
+      <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tns="http://impl.service.siimies.web.ferias/">
+        <soap:Body>
+          <tns:cargarParroquia>
+            <arg0>${cantonId}</arg0>
+          </tns:cargarParroquia>
+        </soap:Body>
+      </soap:Envelope>`;
+
+    return this.http.post(this.SOAP_URL, soapRequest, {
+      headers: { 
+        'Content-Type': 'text/xml',
+        'Authorization': 'Basic ' + btoa(this.SOAP_USER + ':' + this.SOAP_PASS)
+      },
+      responseType: 'text'
+    }).pipe(
+      map((response: string) => {
+        console.log(`✅ Respuesta SOAP para parroquias recibida - Longitud: ${response.length}`);
+        const parroquias = this.parseParroquias(response, cantonId);
+        console.log(`✓ Parroquias cargadas para cantón ${cantonId}:`, parroquias);
+        return parroquias.sort((a, b) => a.name.localeCompare(b.name, 'es-EC'));
+      }),
+      catchError((error: HttpErrorResponse) => {
+        console.error(`❌ ERROR SOAP en cargarParroquia (cantón ${cantonId}):`, error);
+        console.error('Status:', error.status);
+        console.error('StatusText:', error.statusText);
+        console.error('Message:', error.message);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /** Parsea la respuesta SOAP de parroquias */
+  private parseParroquias(soapResponse: string, cantonId: number): Parish[] {
+    console.log(`🔍 Parseando parroquias para cantón ${cantonId}...`);
+    
+    try {
+      const parser = new DOMParser();
+      const xmlDoc = parser.parseFromString(soapResponse, 'text/xml');
+      
+      if (xmlDoc.getElementsByTagName('parsererror').length > 0) {
+        console.error('❌ Error de parseo XML en parroquias');
+        return [];
+      }
+      
+      const geoElements = xmlDoc.getElementsByTagName('geografiaCdhActualEntityList');
+      console.log(`📊 Parroquias encontradas: ${geoElements.length}`);
+      
+      const parroquias: Parish[] = [];
+      
+      for (let i = 0; i < geoElements.length; i++) {
+        const element = geoElements[i];
+        const codigoElem = element.getElementsByTagName('codigoParroquia')[0];
+        const parroquiaElem = element.getElementsByTagName('parroquia')[0];
+        
+        const codigo = codigoElem?.textContent?.trim() || '';
+        const nombre = parroquiaElem?.textContent?.trim() || '';
+        
+        if (codigo && nombre) {
+          const id = parseInt(codigo);
+          parroquias.push({ id, name: nombre, cantonId });
+          console.log(`  ├─ Parroquia ${id}: ${nombre}`);
+        }
+      }
+      
+      console.log(`✓ Total parroquias parseadas: ${parroquias.length}`);
+      return parroquias;
+    } catch (error) {
+      console.error('❌ Error parseando parroquias:', error);
+      return [];
+    }
+  }
+
+  // Mantener datos hardcodeados como fallback
+  private provincesBackup: Province[] = 
 [
   // --- COSTA ---
   {
@@ -237,12 +522,6 @@ export class LocationService {
   }
 ];
 
-  
-
-
-
-  constructor() {}
-
   openLocationModal() {
     this.showLocationModalSubject.next(true);
   }
@@ -285,12 +564,14 @@ export class LocationService {
     let minDistance = Infinity;
 
     this.provinces.forEach((province) => {
-      const distance = Math.sqrt(
-        Math.pow(province.lat - latitude, 2) + Math.pow(province.lng - longitude, 2)
-      );
-      if (distance < minDistance) {
-        minDistance = distance;
-        nearest = province;
+      if (province.lat !== undefined && province.lng !== undefined) {
+        const distance = Math.sqrt(
+          Math.pow(province.lat - latitude, 2) + Math.pow(province.lng - longitude, 2)
+        );
+        if (distance < minDistance) {
+          minDistance = distance;
+          nearest = province;
+        }
       }
     });
 
@@ -338,74 +619,13 @@ getProvinceFromStorage(): Province | null {
   return stored ? JSON.parse(stored) : null;
 }
 
-// ========== CANTONES Y PARROQUIAS (Datos de ejemplo) ==========
-private cantons: Canton[] = [
-  // Pichincha
-  { id: 1, name: 'Quito', provinceId: 17 },
-  { id: 2, name: 'Cayambe', provinceId: 17 },
-  { id: 3, name: 'Mejía', provinceId: 17 },
-  { id: 4, name: 'Pedro Moncayo', provinceId: 17 },
-  { id: 5, name: 'Rumiñahui', provinceId: 17 },
-  { id: 6, name: 'San Miguel de los Bancos', provinceId: 17 },
-  { id: 7, name: 'Pedro Vicente Maldonado', provinceId: 17 },
-  { id: 8, name: 'Puerto Quito', provinceId: 17 },
-  // Guayas
-  { id: 9, name: 'Guayaquil', provinceId: 9 },
-  { id: 10, name: 'Daule', provinceId: 9 },
-  { id: 11, name: 'Durán', provinceId: 9 },
-  { id: 12, name: 'Samborondón', provinceId: 9 },
-  { id: 13, name: 'Milagro', provinceId: 9 },
-  // Azuay
-  { id: 14, name: 'Cuenca', provinceId: 1 },
-  { id: 15, name: 'Gualaceo', provinceId: 1 },
-  { id: 16, name: 'Paute', provinceId: 1 },
-  // Tungurahua
-  { id: 17, name: 'Ambato', provinceId: 20 },
-  { id: 18, name: 'Baños de Agua Santa', provinceId: 20 },
-  { id: 19, name: 'Pelileo', provinceId: 20 },
-  // Manabí
-  { id: 20, name: 'Portoviejo', provinceId: 13 },
-  { id: 21, name: 'Manta', provinceId: 13 },
-  { id: 22, name: 'Chone', provinceId: 13 },
-  // Santa Elena
-  { id: 30, name: 'Salinas', provinceId: 24 },
-];
-
-private parishes: Parish[] = [
-  // Quito
-  { id: 1, name: 'Centro Histórico', cantonId: 1 },
-  { id: 2, name: 'La Mariscal', cantonId: 1 },
-  { id: 3, name: 'Cumbayá', cantonId: 1 },
-  { id: 4, name: 'Tumbaco', cantonId: 1 },
-  { id: 5, name: 'Conocoto', cantonId: 1 },
-  { id: 6, name: 'Calderón', cantonId: 1 },
-  // Mejía
-  { id: 7, name: 'Machachi', cantonId: 3 },
-  { id: 8, name: 'Aloag', cantonId: 3 },
-  { id: 9, name: 'Aloasí', cantonId: 3 },
-  // Salinas
-  { id: 100, name: 'Salinas', cantonId: 30 },
-  // Rumiñahui
-  { id: 10, name: 'Sangolquí', cantonId: 5 },
-  { id: 11, name: 'San Rafael', cantonId: 5 },
-  // Guayaquil
-  { id: 12, name: 'Tarqui', cantonId: 9 },
-  { id: 13, name: 'Ximena', cantonId: 9 },
-  { id: 14, name: 'Pascuales', cantonId: 9 },
-  // Cuenca
-  { id: 15, name: 'El Sagrario', cantonId: 14 },
-  { id: 16, name: 'San Sebastián', cantonId: 14 },
-  { id: 17, name: 'Yanuncay', cantonId: 14 },
-];
-
-/** Obtiene cantones por nombre de provincia */
+/** M\u00e9todos legacy mantenidos para compatibilidad */
 getCantonsByProvince(provinceName: string): Canton[] {
   const province = this.provinces.find(p => p.name === provinceName);
   if (!province) return [];
   return this.cantons.filter(c => c.provinceId === province.id);
 }
 
-/** Obtiene parroquias por nombre de cantón */
 getParishesByCanton(cantonName: string): Parish[] {
   const canton = this.cantons.find(c => c.name === cantonName);
   if (!canton) return [];

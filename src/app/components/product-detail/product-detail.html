@@ -65,9 +65,17 @@
               (error)="onImageError(product.img)"
               class="product-image"
             />
+            <!-- Mostrar spinner mientras carga (null) o error cuando falla (false) -->
             <div 
-              *ngIf="!loadedImages[product.img]" 
-              class="image-placeholder"
+              *ngIf="loadedImages[product.img] === null || loadedImages[product.img] === undefined" 
+              class="image-placeholder loading"
+            >
+              <i class="fas fa-spinner fa-spin"></i>
+              <p>Cargando imagen...</p>
+            </div>
+            <div 
+              *ngIf="loadedImages[product.img] === false" 
+              class="image-placeholder error"
             >
               <i class="fas fa-image"></i>
               <p>No se pudo cargar la imagen</p>
@@ -110,9 +118,7 @@
             <i class="fas fa-map-marker-alt"></i>
             <span>{{ product.location || 'Ubicación no disponible' }}</span>
           </div>
-          <div *ngIf="product.nameCategory" class="category-badge-desktop">
-            <i class="fas fa-tag"></i> {{ product.nameCategory }}
-          </div>
+
         </div>
 
         <!-- Información del Emprendedor -->
