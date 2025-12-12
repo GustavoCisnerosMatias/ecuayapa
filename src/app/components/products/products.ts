@@ -372,6 +372,8 @@ loadProducts(){
   // ====== FILTROS ======
   toggleFilters() {
     this.showFilters = !this.showFilters;
+    // Trigger el evento de scroll para actualizar visibilidad del botón de arriba
+    this.onWindowScroll();
   }
 
   extractCategories() {
@@ -643,7 +645,9 @@ loadProducts(){
   }
 
   onWindowScroll = () => {
-    this.showScrollTop = window.scrollY > 300;
+    // Mostrar botón de arriba solo si NO está abierto el panel de filtros
+    // y si el scroll es mayor a 300px
+    this.showScrollTop = window.scrollY > 300 && !this.showFilters;
     this.cdr.detectChanges();
   };
 
